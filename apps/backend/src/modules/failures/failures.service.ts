@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFailureDto } from './dto/create-failure.dto';
-import { UpdateFailureDto } from './dto/update-failure.dto';
 
 @Injectable()
 export class FailuresService {
-  create(createFailureDto: CreateFailureDto) {
+  create() {
     return 'This action adds a new failure';
   }
 
@@ -16,7 +14,7 @@ export class FailuresService {
     return `This action returns a #${id} failure`;
   }
 
-  update(id: number, updateFailureDto: UpdateFailureDto) {
+  update(id: number) {
     return `This action updates a #${id} failure`;
   }
 

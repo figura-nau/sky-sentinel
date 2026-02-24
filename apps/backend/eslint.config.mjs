@@ -3,11 +3,8 @@ import eslint from '@eslint/js';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
-import myConfig from '@tl21/eslint-custom';
 
 export default [
-  ...myConfig,
-
   {
     ignores: ['eslint.config.mjs'],
   },
