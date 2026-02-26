@@ -1,9 +1,18 @@
 import { Module } from '@nestjs/common';
 import { AiService } from './ai.service';
-import { AiController } from './ai.controller';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
-  controllers: [AiController],
-  providers: [AiService],
+  providers: [
+    AiService,
+    {
+      provide: 'AI_CLIENT',
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const apikey = configService.get<string>('GOOGLE_AI_KEY');
+        return apikey;
+      },
+    },
+  ],
 })
 export class AiModule {}
