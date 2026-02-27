@@ -3,11 +3,15 @@ import {
   SubscribeMessage,
   MessageBody,
   WebSocketServer,
-  ConnectedSocket,
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import type {
+  UAVdataPacket,
+  ValidatorService,
+} from '../validator/validator.service';
+import { FailuresService } from '../failures/failures.service';
 
 @WebSocketGateway(3003, {
   cors: {
@@ -17,23 +21,54 @@ import { Server, Socket } from 'socket.io';
 export class TelemetryParserGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
+  constructor(
+    private readonly validationService: ValidatorService,
+    private readonly failuresService: FailuresService,
+  ) {}
   @WebSocketServer() server: Server;
 
   handleConnection(client: Socket) {
-    console.log(`Client Connected: ${client.id}`);
+    console.log(`UAV/Client Connected: ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`Client Disconnected: ${client.id}`);
+    console.log(`UAV/Client Disconnected: ${client.id}`);
   }
 
-  @SubscribeMessage('sendMessage')
-  handleSendMessage(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() payload: string,
-  ): void {
-    // Handle the incoming message
-    // Broadcast the message to all clients
-    this.server.emit('receiveMessage', payload);
+  @SubscribeMessage('telemetry')
+  async handleUAVdata(@MessageBody() packet: UAVdataPacket) {
+    try {
+      const isValid = this.validationService.validate(packet);
+      if (!isValid) {
+        return;
+      }
+      const { data } = packet;
+
+      await Promise.all([
+        this.failuresService.checkFlightDynamics(
+          data.verticalSpeed,
+          data.altitude,
+          data.airspeed,
+          data.pitch,
+          data.roll,
+          data.id,
+        ),
+        this.failuresService.checkHardwareStatus(
+          data.gear_status,
+          data.altitude,
+          data.battery_level,
+          data.temperature,
+          data.id,
+        ),
+        this.failuresService.checkConnection(
+          data.rssi,
+          data.latency,
+          Date.now(),
+          data.id,
+        ),
+      ]);
+    } catch (err: unknown) {
+      console.error('error', err);
+    }
   }
 }

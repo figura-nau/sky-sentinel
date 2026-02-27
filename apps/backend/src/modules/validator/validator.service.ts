@@ -1,22 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { UAVdata } from '@prisma/client';
 
-interface UAVdata {
-  latitude: string;
-  longitude: string;
-  altitude: string;
-  verticalSpeed: string;
-  airspeed: string;
-  pitch: string;
-  roll: string;
-  gear_status: string;
-  battery_level: string;
-  temperature: string;
-  rssi: string;
-  latency: string;
-  timestamp: string;
-}
-
-interface UAVdataPacket {
+export interface UAVdataPacket {
   data: UAVdata;
   checksum: string;
 }

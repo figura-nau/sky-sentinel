@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { FailureLog, FailureType, Severity } from '@prisma/client';
+import { FailureLog, FailureType, Severity, UAVdata } from '@prisma/client';
 import { PrismaService } from 'src/database/prisma/prisma.service';
 import { CreateFailureDto } from './dto/create-failure.dto';
 import { UpdateFailureDto } from './dto/update-failure.dto';
@@ -12,15 +12,15 @@ export class FailuresService {
    * 1. GEODESY: GPS check and height
    */
   async checkGpsAndAltitude(
-    lat: number,
-    lon: number,
-    alt: number,
-    airspeed: number,
-    uavDataId: number,
+    lat: UAVdata['latitude'],
+    lon: UAVdata['longitude'],
+    alt: UAVdata['altitude'],
+    airspeed: UAVdata['airspeed'],
+    uavDataId: UAVdata['id'],
   ) {
     // GPS Lost
     if (lat === 0 || lon === 0) {
-      return this.create({
+      await this.create({
         type: FailureType.NETWORK,
         severity: Severity.CRITICAL,
         description: 'GPS Lost: Zero coordinates detected.',
@@ -30,7 +30,7 @@ export class FailuresService {
 
     // Terrain Proximity (Ground collision risk)
     if (alt < 2 && airspeed > 40) {
-      return this.create({
+      await this.create({
         type: FailureType.HARDWARE, // Або кастомний FLIGHT_DYNAMICS
         severity: Severity.CRITICAL,
         description: `Terrain Proximity: Low altitude (${alt}m) at high speed!`,
@@ -40,7 +40,7 @@ export class FailuresService {
 
     // Legal limit
     if (alt > 120) {
-      return this.create({
+      await this.create({
         type: FailureType.OTHER,
         severity: Severity.WARNING,
         description: `Legal Limit Warning: Altitude ${alt}m exceeds 120m limit.`,
@@ -53,12 +53,12 @@ export class FailuresService {
    * 2. AERODYNAMIC: Landing, Stall,  Кути
    */
   async checkFlightDynamics(
-    vsi: number,
-    alt: number,
-    airspeed: number,
-    pitch: number,
-    roll: number,
-    uavDataId: number,
+    vsi: UAVdata['verticalSpeed'],
+    alt: UAVdata['altitude'],
+    airspeed: UAVdata['airspeed'],
+    pitch: UAVdata['pitch'],
+    roll: UAVdata['roll'],
+    uavDataId: UAVdata['id'],
   ) {
     // Hard Landing
     if (alt < 2 && vsi < -4.5) {
@@ -116,11 +116,11 @@ export class FailuresService {
    * 3. HARDWARE: Gear, Battery, Overheat
    */
   async checkHardwareStatus(
-    gear: number,
-    alt: number,
-    battery: number,
-    temp: number,
-    uavDataId: number,
+    gear: UAVdata['gear_status'],
+    alt: UAVdata['altitude'],
+    battery: UAVdata['battery_level'],
+    temp: UAVdata['temperature'],
+    uavDataId: UAVdata['id'],
   ) {
     if (alt < 10 && gear === 0) {
       await this.create({
@@ -168,45 +168,48 @@ export class FailuresService {
    * 4. NETWORK: Signal, Latency, Time-out
    */
   async checkConnection(
-    rssi: number,
-    latency: number,
-    lastSeen: number,
-    uavDataId: number,
+    rssi: UAVdata['rssi'],
+    latency: UAVdata['latency'],
+    lastSeenMil: number,
+    uavDataId: UAVdata['id'],
   ) {
-    if (rssi < -100) {
-      await this.create({
-        type: FailureType.NETWORK,
-        severity: Severity.CRITICAL,
-        description: `Signal Lost: RSSI ${rssi} dBm`,
-        uavDataId,
-      });
-    } else if (rssi < -90) {
-      await this.create({
-        type: FailureType.NETWORK,
-        severity: Severity.WARNING,
-        description: `Weak Signal: RSSI ${rssi} dBm`,
-        uavDataId,
-      });
+    if (rssi) {
+      if (rssi < -100) {
+        await this.create({
+          type: FailureType.NETWORK,
+          severity: Severity.CRITICAL,
+          description: `Signal Lost: RSSI ${rssi} dBm`,
+          uavDataId,
+        });
+      } else if (rssi < -90) {
+        await this.create({
+          type: FailureType.NETWORK,
+          severity: Severity.WARNING,
+          description: `Weak Signal: RSSI ${rssi} dBm`,
+          uavDataId,
+        });
+      }
     }
-
-    if (latency > 1000) {
-      await this.create({
-        type: FailureType.NETWORK,
-        severity: Severity.CRITICAL,
-        description: `Control Lag CRITICAL: ${latency}ms`,
-        uavDataId,
-      });
-    } else if (latency > 500) {
-      await this.create({
-        type: FailureType.NETWORK,
-        severity: Severity.WARNING,
-        description: `Control Lag WARNING: ${latency}ms`,
-        uavDataId,
-      });
+    if (latency) {
+      if (latency > 1000) {
+        await this.create({
+          type: FailureType.NETWORK,
+          severity: Severity.CRITICAL,
+          description: `Control Lag CRITICAL: ${latency}ms`,
+          uavDataId,
+        });
+      } else if (latency > 500) {
+        await this.create({
+          type: FailureType.NETWORK,
+          severity: Severity.WARNING,
+          description: `Control Lag WARNING: ${latency}ms`,
+          uavDataId,
+        });
+      }
     }
 
     // Telemetry Timeout
-    const timeDiff = (Date.now() - lastSeen) / 1000;
+    const timeDiff = (Date.now() - lastSeenMil) / 1000;
     if (timeDiff > 5) {
       await this.create({
         type: FailureType.NETWORK,
