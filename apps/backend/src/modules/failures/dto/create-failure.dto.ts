@@ -1,4 +1,4 @@
-import { FailureType, Severity } from 'src/database/generated/prisma/enums';
+import { FailureType, Severity } from '@prisma/client';
 import { IsString, IsEnum, IsNumber } from 'class-validator';
 export class CreateFailureDto {
   @IsEnum(FailureType)

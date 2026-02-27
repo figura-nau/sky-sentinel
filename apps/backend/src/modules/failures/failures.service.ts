@@ -1,14 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { FailureType, Severity } from 'src/database/generated/prisma/enums';
+import { Injectable } from '@nestjs/common';
+import { FailureLog, FailureType, Severity } from '@prisma/client';
 import { PrismaService } from 'src/database/prisma/prisma.service';
-import { FailureLogModel } from 'src/database/generated/prisma/models';
 import { CreateFailureDto } from './dto/create-failure.dto';
 import { UpdateFailureDto } from './dto/update-failure.dto';
 
 @Injectable()
 export class FailuresService {
-  private readonly logger = new Logger(FailuresService.name);
-
   constructor(private readonly prismaService: PrismaService) {}
 
   /**
@@ -220,32 +217,28 @@ export class FailuresService {
     }
   }
 
-  async create(data: CreateFailureDto): Promise<FailureLogModel> {
-    this.logger.warn(`Failure Created: [${data.severity}] ${data.description}`);
+  async create(data: CreateFailureDto): Promise<FailureLog> {
     return await this.prismaService.failureLog.create({ data });
   }
 
-  async findAll(): Promise<FailureLogModel[]> {
+  async findAll(): Promise<FailureLog[]> {
     return await this.prismaService.failureLog.findMany();
   }
 
-  async findOne(id: number): Promise<FailureLogModel | null> {
+  async findOne(id: number): Promise<FailureLog | null> {
     return await this.prismaService.failureLog.findUnique({
       where: { id },
     });
   }
 
-  async update(
-    id: number,
-    failureData: UpdateFailureDto,
-  ): Promise<FailureLogModel> {
+  async update(id: number, failureData: UpdateFailureDto): Promise<FailureLog> {
     return await this.prismaService.failureLog.update({
       where: { id },
       data: { ...failureData },
     });
   }
 
-  async remove(id: number): Promise<FailureLogModel> {
+  async remove(id: number): Promise<FailureLog> {
     return await this.prismaService.failureLog.delete({
       where: {
         id,
