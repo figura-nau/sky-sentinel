@@ -1,0 +1,10 @@
+{
+  "name": "@sky-sentinel/typescript",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "description": "TypeScript configuration for the monorepo",
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json"
+  }
+}

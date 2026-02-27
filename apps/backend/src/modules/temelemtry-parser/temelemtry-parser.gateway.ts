@@ -5,6 +5,7 @@ import {
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import type {
@@ -36,7 +37,10 @@ export class TelemetryParserGateway
   }
 
   @SubscribeMessage('telemetry')
-  async handleUAVdata(@MessageBody() packet: UAVdataPacket) {
+  async handleUAVdata(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() packet: UAVdataPacket,
+  ) {
     try {
       const isValid = this.validationService.validate(packet);
       if (!isValid) {
@@ -67,6 +71,10 @@ export class TelemetryParserGateway
           data.id,
         ),
       ]);
+
+      this.server.emit('receive_ui_data', data);
+
+      console.log(`Processed packet from ${client.id} - id: ${data.id}`);
     } catch (err: unknown) {
       console.error('error', err);
     }

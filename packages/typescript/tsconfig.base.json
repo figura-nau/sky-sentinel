@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+  "strict": true,
+  "noUnusedLocals": true,
+  "noUnusedParameters": true,
+  "noFallthroughCasesInSwitch": true,
+  "noUncheckedSideEffectImports": true,
+  "allowImportingTsExtensions": true,
+  "target": "ES2023",
+  "noEmit": true,
+  "skipLibCheck": true,
+  "strictNullChecks": true,
+  "forceConsistentCasingInFileNames": true
+}
+}
