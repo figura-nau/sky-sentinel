@@ -54,3 +54,7 @@ The system supports processing of **NMEA 0183** standard text streams and custom
 ---
 
 _This project was developed as part of the "Computerized Information Management Systems" university discipline._
+---
+
+## Preview
+![alt text](docs/image.png)
