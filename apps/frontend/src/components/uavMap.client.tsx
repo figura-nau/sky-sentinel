@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -12,10 +12,46 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 const uavIcon = L.divIcon({
-  html: `<div class="text-blue-500 transform -rotate-45"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15h3l2 2 4-14 4 14 2-2h3"/></svg></div>`,
+  html: `
+    <div class="relative flex items-center justify-center">
+      <div class="absolute inset-0 animate-pulse rounded-full bg-blue-500/20 blur-xl"></div>
+      
+      <div class="text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]">
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          width="42" 
+          height="42" 
+          viewBox="0 0 100 100" 
+          fill="currentColor"
+        >
+          <path d="
+            M 50,10 
+            L 46,25 
+            L 10,35 
+            L 10,42 
+            L 46,38 
+            L 48,75 
+            L 38,85 
+            L 38,90 
+            L 50,85 
+            L 62,90 
+            L 62,85 
+            L 52,75 
+            L 54,38 
+            L 90,42 
+            L 90,35 
+            L 54,25 
+            Z
+          " />
+          
+          <circle cx="50" cy="12" r="2" fill="white" fill-opacity="0.5" />
+        </svg>
+      </div>
+    </div>
+  `,
   className: "custom-uav-icon",
-  iconSize: [32, 32],
-  iconAnchor: [16, 16],
+  iconSize: [42, 42],
+  iconAnchor: [21, 21],
 });
 
 const homeIcon = L.divIcon({
@@ -47,6 +83,15 @@ export default function UavMap({
   homePos,
   geofenceRadius = 500,
 }: UavMapProps) {
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    if (!isMounted) {
+      setIsMounted(true);
+    }
+  }, [isMounted]);
+  if (!isMounted) {
+    return null;
+  }
   return (
     <div className="h-full w-full rounded-xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900">
       <MapContainer
@@ -56,10 +101,7 @@ export default function UavMap({
         className="h-full w-full"
       >
         {/* Professional Dark Map Style (CartoDB Dark Matter) */}
-        <TileLayer
-          attribution="&copy; OpenStreetMap contributors &copy; CARTO"
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-        />
+        <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
 
         {/* 1. Geofence Boundary (Lecture №10 Requirement) */}
         <Circle
@@ -99,13 +141,6 @@ export default function UavMap({
           </Popup>
         </Marker>
       </MapContainer>
-
-      {/* Map Overlay Controls (Tailwind) */}
-      <div className="absolute bottom-4 right-4 z-1000 bg-slate-900/80 p-2 rounded-lg border border-slate-700 backdrop-blur-md">
-        <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
-          Signal: Operational
-        </p>
-      </div>
     </div>
   );
 }

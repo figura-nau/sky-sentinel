@@ -1,65 +1,34 @@
-import UavMap from "../../components/uavMap.client";
-import { Card, CardContent, CardHeader } from "../../components/ui";
+import {
+  EventDiagnosticLog,
+  HardwareHealth,
+  RedundancyMonitor,
+  StatusBar,
+} from "@/components";
+import MissionMapCard from "@/components/cards/MissionMapCard";
+import Header from "@/components/Header/Header";
+import TelemetryChats from "@/components/TelemetryCharts/TelemetryChats";
 
-export function Welcome() {
+export default function Welcome() {
   // implement use effect for socket connection and create global provider for uav data
+  // custom hook useUavData for fetching and providing uav data to components using websocket connection
   return (
-    <div className="w-full flex justify-center items-center min-h-screen gap-y-6">
-      <header className="bg-blue-600 text-white p-4">
-        <h1 className="text-2xl font-bold">SkySentinel</h1>
-      </header>
+    <div className="w-full px-10 py-5 flex flex-col justify-start items-center min-h-screen bg-black">
+      <Header />
       {/* section with connection status card, caution, systems heartbeat, flightmode, rth protocol */}
-      <section className="w-full flex justify-center items-center gap-4">
-        <Card>
-          <h2 className="text-lg font-semibold">
-            Connection Status: Connected
-          </h2>
-        </Card>
-        <Card>
-          <h2 className="text-lg font-semibold">Caution: None</h2>
-        </Card>
-        <Card>
-          <h2 className="text-lg font-semibold">Systems Heartbeat: Active</h2>
-        </Card>
-        <Card>
-          <h2 className="text-lg font-semibold">Flight Mode: Manual</h2>
-        </Card>
-        <Card>
-          <h2 className="text-lg font-semibold">RTH Protocol: Active</h2>
-        </Card>
-      </section>
+      <StatusBar />
       {/* main content */}
       {/* left aside content: PFD gause, Analytical redundancy monitor for airspeed and ground speed, hardware status */}
-      <main className="w-full h-full flex justify-center items-center gap-x-5">
-        <aside className="h-full flex flex-col justify-center items-center gap-y-4">
-          <Card>PFD gause</Card>
-          <Card>
-            Analytical redundancy monitor for airspeed and ground speed
-          </Card>
-          <Card>Hardware status</Card>
+      <main className="w-full max-h-232 h-full flex justify-center gap-x-5">
+        <aside className="h-full  w-full flex flex-col justify-start items-center gap-y-4">
+          <RedundancyMonitor airspeed={120} groundSpeed={110} />
+          <HardwareHealth battery={85} temp={45} latency={120} />
         </aside>
         {/* map */}
-        <Card>
-          <CardHeader>Mission Map</CardHeader>
-          <CardContent className="flex-1 p-0 relative min-h-0">
-            <UavMap
-              currentPos={[51.505, -0.09]}
-              history={[]}
-              homePos={[51.505, -0.09]}
-            />
-          </CardContent>
-        </Card>
+        <MissionMapCard />
         {/* right aside for  event logs, altitude and battery level line charts*/}
-        <aside className="h-full flex flex-col justify-center items-center gap-y-4">
-          <Card>
-            <CardHeader>Event Logs</CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>Altitude History</CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>Battery Level History</CardHeader>
-          </Card>
+        <aside className="h-full w-full flex flex-col justify-center items-center gap-y-4">
+          <EventDiagnosticLog />
+          <TelemetryChats />
         </aside>
       </main>
     </div>

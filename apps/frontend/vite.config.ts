@@ -3,10 +3,11 @@ import path from "path";
 import { visualizer } from "rollup-plugin-visualizer";
 import { qrcode } from "vite-plugin-qrcode";
 import { reactRouter } from "@react-router/dev/vite";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig(({ command }) => {
   const common = {
-    plugins: [reactRouter()],
+    plugins: [reactRouter(), tailwindcss()], 
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "src"),
@@ -29,7 +30,10 @@ export default defineConfig(({ command }) => {
   }
 
   return {
-    plugins: [...common.plugins, visualizer({ emitFile: false })],
+    plugins: [
+      ...common.plugins,
+      visualizer({ emitFile: false }),
+    ],
     resolve: common.resolve,
   };
 });
