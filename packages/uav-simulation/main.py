@@ -8,9 +8,23 @@ from datetime import datetime, timezone
 sio = socketio.Client()
 
 def calculate_uav_checksum(data: dict) -> str:
-    """Calculates a deterministic XOR checksum for the telemetry dictionary."""
     sorted_keys = sorted(data.keys())
-    payload_string = "|".join([f"{k}:{data[k]}" for k in sorted_keys])
+    parts = []
+    for k in sorted_keys:
+        val = data[k]
+        if isinstance(val, (int, float)):
+            # Rounding to 4 decimal places kills the 'drift' (0.00000000000002)
+            # Adding 0.0 is a trick to convert -0.0 to 0.0
+            val_normalized = round(float(val), 4) + 0.0
+            val_str = format(val_normalized, 'g')
+        elif isinstance(val, bool):
+            val_str = "True" if val else "False"
+        else:
+            val_str = str(val)
+        parts.append(f"{k}:{val_str}")
+    
+    payload_string = "|".join(parts)
+    # print(f"PYTHON PAYLOAD: {payload_string}")
     checksum = 0
     for char in payload_string:
         checksum ^= ord(char)
@@ -92,7 +106,8 @@ def run_advanced_simulation():
                 state["servoCurrent"] = round(random.uniform(0.6, 0.9), 1)
 
             # --- 3. SEND PACKET ---
-            state["timestamp"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+            now = datetime.now(timezone.utc)
+            state["timestamp"] = now.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
             checksum = calculate_uav_checksum(state)
 
             packet = {
