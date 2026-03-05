@@ -7,7 +7,7 @@ export const useSocketConnection = () => {
     process.env.NODE_ENV === "production" ? undefined : "http://localhost:3003";
 
   const [isConnected, setIsConnected] = useState(false);
-  const [telemetryEvents, setTelemetryEvents] = useState<any[]>([]);
+  const [telemetryEvents, setTelemetryEvents] = useState<UAVdata[]>([]);
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
@@ -15,13 +15,14 @@ export const useSocketConnection = () => {
       transports: ["websocket"],
     });
     socketRef.current = socket;
+    socket.on("connect", onConnect);
 
-    if (socket.connected) {
-      setIsConnected(true);
-    }
     function onConnect() {
       console.log("Connected to telemetry server");
       setIsConnected(true);
+    }
+    if (socket.connected) {
+      onConnect();
     }
 
     function onDisconnect() {
@@ -30,11 +31,10 @@ export const useSocketConnection = () => {
     }
 
     function onTelemetryEvent(value: UAVdata) {
-      console.log("Received telemetry event");
+      console.log("Received receive_ui_data event", value);
       setTelemetryEvents((previous) => [...previous, value]);
     }
 
-    socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("receive_ui_data", onTelemetryEvent);
     socket.on("connect_error", (err) => {

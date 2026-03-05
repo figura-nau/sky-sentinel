@@ -6,7 +6,29 @@ import uuid
 from datetime import datetime, timezone
 
 sio = socketio.Client()
-
+def get_next_position(lat, lon, speed_ms, heading, dt=1.0):
+    """
+    Calculate new Lat/Lon based on current speed (m/s) and heading.
+    Using simple spherical earth approximation for short distances.
+    """
+    R = 6378137.0  # Radius of Earth in meters
+    
+    # Convert degrees to radians
+    heading_rad = math.radians(heading)
+    lat_rad = math.radians(lat)
+    
+    # Distance moved in this time step
+    distance = speed_ms * dt
+    
+    # Calculate change
+    delta_lat = (distance * math.cos(heading_rad)) / R
+    delta_lon = (distance * math.sin(heading_rad)) / (R * math.cos(lat_rad))
+    
+    # Convert back to degrees
+    new_lat = lat + math.degrees(delta_lat)
+    new_lon = lon + math.degrees(delta_lon)
+    
+    return new_lat, new_lon
 def calculate_uav_checksum(data: dict) -> str:
     sorted_keys = sorted(data.keys())
     parts = []
@@ -67,7 +89,16 @@ def run_advanced_simulation():
             tick += 1
             state["id"] = str(uuid.uuid4())
             # --- 1. SIMULATE PHYSICS & REDUNDANCY ---
-            
+            current_heading = 90.0 
+            current_heading = (current_heading + 3.0) % 360.0
+            new_lat, new_lon = get_next_position(
+                state["latitude"], 
+                state["longitude"], 
+                state["groundSpeed"], 
+                current_heading
+            )
+            state["latitude"] = round(new_lat, 6)
+            state["longitude"] = round(new_lon, 6)
             # Simulate Wind (difference between Airspeed and GroundSpeed)
             # Lecture №10: Analytical Redundancy check
             wind_effect = random.uniform(-2.0, 2.0)

@@ -6,7 +6,7 @@ export default function AltitudeHistory() {
   const uavData = useContext(UavDataContext);
   if (!uavData) return null;
   const data = uavData.data.map((entry) => ({
-    x: entry.timestamp,
+    x: new Date(entry.timestamp).getTime(),
     y: entry.altitude,
   }));
 

@@ -5,7 +5,7 @@ import {
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  ConnectedSocket,
+  // ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import type { UAVdataPacket } from '../validator/validator.service';
@@ -40,7 +40,7 @@ export class TelemetryParserGateway
 
   @SubscribeMessage('telemetry')
   async handleUAVdata(
-    @ConnectedSocket() client: Socket,
+    // @ConnectedSocket() client: Socket,
     @MessageBody() packet: UAVdataPacket,
   ) {
     try {
@@ -79,12 +79,12 @@ export class TelemetryParserGateway
           savedPacket.id,
         ),
       ]);
-      console.log('Send data to the frontend!', data);
+      // console.log('Send data to the frontend!', data);
       this.server.emit('receive_ui_data', data);
 
-      console.log(
-        `Обробка пакету даних від ${client.id} - id пакету: ${data.id}`,
-      );
+      // console.log(
+      //   `Обробка пакету даних від ${client.id} - id пакету: ${data.id}`,
+      // );
     } catch (err: unknown) {
       console.error('error', err);
     }

@@ -7,10 +7,19 @@ const UavMap = lazy(() => import("../../components/uavMap.client"));
 export default function MissionMapCard() {
   const uavData = useContext(UavDataContext);
   if (!uavData) return null;
-  const { latitude, longitude } = uavData.data[uavData.data.length - 1] || {
+  
+  const { latitude: currentLatitude, longitude: currentLongitude } = uavData
+    .data[uavData.data.length - 1] || {
     latitude: 0,
     longitude: 0,
   };
+  const homePos: [number, number] = uavData.data[0]
+    ? [uavData.data[0].latitude, uavData.data[0].longitude]
+    : [51.505, -0.09];
+  const history: [number, number][] = uavData.data.map((entry) => [
+    entry.latitude,
+    entry.longitude,
+  ]);
 
   return (
     <Card className="w-full h-200 max-w-5xl">
@@ -22,16 +31,9 @@ export default function MissionMapCard() {
           }
         >
           <UavMap
-            currentPos={[latitude, longitude]}
-            history={[
-              [latitude, longitude],
-              [latitude, longitude - 0.01],
-              [latitude, longitude - 0.02],
-              [latitude, longitude - 0.04],
-              [latitude, longitude - 0.05],
-              [latitude, longitude - 0.06],
-            ]}
-            homePos={[51.505, -0.09]}
+            currentPos={[currentLatitude, currentLongitude]}
+            homePos={homePos}
+            history={history}
           />
         </Suspense>
       </CardContent>

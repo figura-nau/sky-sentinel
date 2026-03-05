@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -6,7 +5,6 @@ import {
   Popup,
   Polyline,
   Circle,
-  useMap,
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -61,14 +59,7 @@ const homeIcon = L.divIcon({
   iconAnchor: [12, 12],
 });
 
-// Component to automatically re-center map when UAV moves
-const RecenterMap = ({ position }: { position: [number, number] }) => {
-  const map = useMap();
-  useEffect(() => {
-    map.setView(position);
-  }, [position, map]);
-  return null;
-};
+
 
 interface UavMapProps {
   currentPos: [number, number]; // [lat, lng]
@@ -83,15 +74,6 @@ export default function UavMap({
   homePos,
   geofenceRadius = 500,
 }: UavMapProps) {
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => {
-    if (!isMounted) {
-      setIsMounted(true);
-    }
-  }, [isMounted]);
-  if (!isMounted) {
-    return null;
-  }
   return (
     <div className="h-full w-full rounded-xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900">
       <MapContainer
@@ -129,7 +111,6 @@ export default function UavMap({
 
         {/* 4. Active UAV Marker */}
         <Marker position={currentPos} icon={uavIcon}>
-          <RecenterMap position={currentPos} />
           <Popup>
             <div className="text-xs font-mono">
               <strong>SkySentinel UAV</strong>

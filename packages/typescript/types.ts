@@ -20,7 +20,7 @@ export type FailureLog = {
 
 export type UAVdata = {
   id: string;
-  timestamp: Date;
+  timestamp: string;
   latitude: number;
   longitude: number;
   altitude: number;

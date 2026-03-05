@@ -20,8 +20,17 @@ export function TelemetryMiniChart({
   data,
 }: {
   title: string;
-  data: { x: Date; y: number }[];
+  data: { x: number; y: number }[];
 }) {
+  const formatTime = (timeStr: string) => {
+    const date = new Date(timeStr);
+    return date.toLocaleTimeString("uk-UA", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  };
+
   return (
     <Card className="border-slate-800 bg-slate-950/50 backdrop-blur-md">
       <CardHeader className="flex flex-row items-center justify-between border-b border-slate-900 px-4 py-2">
@@ -57,17 +66,18 @@ export function TelemetryMiniChart({
             <XAxis
               dataKey="x"
               type="number"
-              domain={[0, 100]}
-              ticks={[0, 20, 40, 60, 80, 100]}
+              scale="time"
+              domain={["auto", "auto"]}
               axisLine={false}
+              tickFormatter={formatTime}
+              minTickGap={30}
               tickLine={false}
               tick={{ fill: "#64748b", fontSize: 10, fontFamily: "monospace" }}
               dy={5}
             />
 
             <YAxis
-              domain={[0, 400]}
-              ticks={[0, 200, 400]}
+              domain={["auto", "auto"]}
               axisLine={false}
               tickLine={false}
               tick={{ fill: "#64748b", fontSize: 10, fontFamily: "monospace" }}

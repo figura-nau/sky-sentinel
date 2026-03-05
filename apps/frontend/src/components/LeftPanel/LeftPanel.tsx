@@ -13,7 +13,7 @@ export default function LeftPanel() {
     temperature: 0,
     latency: 0,
   };
-
+  console.log("LeftPanel received uavData:", uavData);
   return (
     <aside className="h-full  w-full flex flex-col justify-start items-center gap-y-4">
       <RedundancyMonitor airspeed={airspeed} groundSpeed={groundSpeed} />

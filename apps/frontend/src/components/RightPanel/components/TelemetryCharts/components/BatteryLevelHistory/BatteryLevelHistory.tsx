@@ -6,9 +6,8 @@ export default function BatteryLevelHistory() {
   const uavData = useContext(UavDataContext);
   if (!uavData) return null;
   const data = uavData.data.map((entry) => ({
-    x: entry.timestamp,
+    x: new Date(entry.timestamp).getTime(),
     y: entry.battery_level,
   }));
-
   return <TelemetryMiniChart title="Battery Level History (%)" data={data} />;
 }

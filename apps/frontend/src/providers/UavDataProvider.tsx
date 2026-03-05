@@ -1,9 +1,8 @@
-import { createContext, useState } from "react";
+import { createContext, useMemo } from "react";
 import type { UAVdata } from "@sky-sentinel/typescript/types";
 
 export const UavDataContext = createContext<{
   data: UAVdata[];
-  setData: React.Dispatch<React.SetStateAction<UAVdata[]>>;
 } | null>(null);
 
 export default function UavDataProvider({
@@ -13,12 +12,12 @@ export default function UavDataProvider({
   uavData: UAVdata[];
   children: React.ReactNode;
 }) {
-  const [data, setData] = useState(uavData);
-
-  const value = {
-    data,
-    setData,
-  };
+  const value = useMemo(
+    () => ({
+      data: uavData,
+    }),
+    [uavData],
+  );
   return (
     <UavDataContext.Provider value={value}>{children}</UavDataContext.Provider>
   );

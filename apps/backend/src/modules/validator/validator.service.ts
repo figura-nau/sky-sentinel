@@ -61,7 +61,7 @@ export class ValidatorService {
           `🚨 [Валідація] Чексума невідповідність! Очікуване: ${hexResult}, Отримане: ${checksum}`,
         );
       }
-      console.log('✅ [Валідація] Чексума відповіднітсть!');
+      // console.log('✅ [Валідація] Чексума відповіднітсть!');
       return isValid;
     } catch (error) {
       console.error('🆘 [Валідація] Помилка при валідації даних:', error);
