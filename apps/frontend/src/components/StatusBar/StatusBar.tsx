@@ -1,4 +1,4 @@
-import { Dot, AlertTriangle, Activity } from "lucide-react";
+import { Dot, Activity } from "lucide-react";
 import StatusBarItem from "./components/StatusBarItem";
 import { useContext } from "react";
 import { UavDataContext } from "@/providers/UavDataProvider";
@@ -6,7 +6,7 @@ import { useSocketConnection } from "@/hooks/useSocketConnection";
 import { useTimeConnected } from "./hooks";
 
 export function StatusBar() {
-  const uavData = useContext(UavDataContext)?.data[0];
+  const uavData = useContext(UavDataContext);
   if (!uavData) return null;
   const { isConnected } = useSocketConnection();
   const { timeConnected } = useTimeConnected(isConnected);
@@ -15,25 +15,25 @@ export function StatusBar() {
     <header className="flex w-full h-full items-center gap-2 py-2">
       {/* 1. Connection Status */}
       <StatusBarItem
-        variant="success"
+        variant={isConnected ? "success" : "critical"}
         isAlerting={true}
         icon={<Dot className="size-12 fill-current" />}
         value={isConnected ? "Connection: Active" : "Connection: Inactive"}
       />
 
       {/* 2. Master Caution (Triggered by failuresService) */}
-      <StatusBarItem
+      {/* <StatusBarItem
         variant="critical"
         isAlerting={true} // Set this to true when a failure is detected
         icon={<AlertTriangle className="size-12" />}
         value="Master Caution"
-      />
+      /> */}
 
       {/* 3. System Heartbeat */}
       <StatusBarItem
         label="System Heartbeat:"
         value={`${timeConnected}s`}
-        icon={<Activity className="size-12 text-green-500" />}
+        icon={<Activity className={ `size-12 ${isConnected ? 'text-green-500' : 'text-red-500'}`} />}
       />
 
       {/* 4. Flight Mode */}

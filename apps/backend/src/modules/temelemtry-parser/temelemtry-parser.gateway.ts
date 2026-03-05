@@ -79,7 +79,7 @@ export class TelemetryParserGateway
           savedPacket.id,
         ),
       ]);
-
+      console.log('Send data to the frontend!', data);
       this.server.emit('receive_ui_data', data);
 
       console.log(

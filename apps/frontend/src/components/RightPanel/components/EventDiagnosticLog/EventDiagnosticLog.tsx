@@ -101,6 +101,11 @@ export function EventDiagnosticLog() {
             </div>
           </div>
         ))}
+        {logEntries.length === 0 && (
+          <div className="flex items-center justify-center h-32 text-slate-500">
+            No log entries available.
+          </div>
+        )}
       </CardContent>
     </Card>
   );

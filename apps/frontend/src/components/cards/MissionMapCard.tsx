@@ -5,9 +5,12 @@ import { UavDataContext } from "@/providers";
 const UavMap = lazy(() => import("../../components/uavMap.client"));
 
 export default function MissionMapCard() {
-  const uavData = useContext(UavDataContext)?.data[0];
+  const uavData = useContext(UavDataContext);
   if (!uavData) return null;
-  const { latitude, longitude } = uavData;
+  const { latitude, longitude } = uavData.data[uavData.data.length - 1] || {
+    latitude: 0,
+    longitude: 0,
+  };
 
   return (
     <Card className="w-full h-200 max-w-5xl">

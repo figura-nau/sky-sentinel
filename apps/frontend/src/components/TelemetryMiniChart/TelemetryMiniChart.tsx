@@ -15,21 +15,13 @@ import {
   CardContent,
 } from "@/components/ui/card";
 
-const data = [
-  { time: 0, alt: 10 },
-  { time: 10, alt: 80 },
-  { time: 20, alt: 130 },
-  { time: 30, alt: 140 },
-  { time: 40, alt: 135 },
-  { time: 50, alt: 210 },
-  { time: 60, alt: 220 },
-  { time: 70, alt: 280 },
-  { time: 80, alt: 300 },
-  { time: 90, alt: 290 },
-  { time: 100, alt: 380 },
-];
-
-export function TelemetryMiniChart({ title }: { title: string }) {
+export function TelemetryMiniChart({
+  title,
+  data,
+}: {
+  title: string;
+  data: { x: Date; y: number }[];
+}) {
   return (
     <Card className="border-slate-800 bg-slate-950/50 backdrop-blur-md">
       <CardHeader className="flex flex-row items-center justify-between border-b border-slate-900 px-4 py-2">
@@ -63,7 +55,7 @@ export function TelemetryMiniChart({ title }: { title: string }) {
             />
 
             <XAxis
-              dataKey="time"
+              dataKey="x"
               type="number"
               domain={[0, 100]}
               ticks={[0, 20, 40, 60, 80, 100]}
@@ -83,7 +75,7 @@ export function TelemetryMiniChart({ title }: { title: string }) {
 
             <Area
               type="monotone"
-              dataKey="alt"
+              dataKey="y"
               stroke="#2dd4bf"
               strokeWidth={2}
               fillOpacity={1}

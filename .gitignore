@@ -1,6 +1,6 @@
 node_modules
 .turbo
-packages/**/.venv/ 
+packages/**/*venv/ 
 __pycache__/
 # dotenv environment variable files
 .env
