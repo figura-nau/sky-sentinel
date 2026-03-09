@@ -3,3 +3,5 @@
 
 7) fix ssr
 9) deploy
+10) add sorting in logs in the right panel 
+11) add notificaiton for new failures connections etc
