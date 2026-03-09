@@ -18,8 +18,8 @@ export function RedundancyMonitor({
   airspeed,
   groundSpeed,
 }: RedundancyMonitorProps) {
-  const delta = Math.abs(airspeed - groundSpeed);
-  const isOk = delta <= 15; 
+  const delta = Math.abs(airspeed - groundSpeed).toFixed(3);
+  const isOk = Number(delta) <= 15;
 
   return (
     <Card className="w-full">
