@@ -1,4 +1,4 @@
-import { Dot, Activity } from "lucide-react";
+import { Activity, Wifi } from "lucide-react";
 import StatusBarItem from "./components/StatusBarItem";
 import { useContext } from "react";
 import { UavDataContext } from "@/providers/UavDataProvider";
@@ -14,12 +14,12 @@ export function StatusBar() {
   const { timeConnected } = useTimeConnected(isConnected);
 
   return (
-    <header className="flex w-full h-full flex-wrap items-center gap-2 py-2">
+    <header className="flex w-full flex-wrap items-center gap-2 py-2">
       {/* 1. Connection Status */}
       <StatusBarItem
         variant={isConnected ? "success" : "critical"}
         isAlerting={true}
-        icon={<Dot className="size-12 fill-current" />}
+        icon={<Wifi className="size-6 fill-current" />}
         value={
           isConnected
             ? t("statusBar.connectionActive")
@@ -31,7 +31,7 @@ export function StatusBar() {
       {/* <StatusBarItem
         variant="critical"
         isAlerting={true} // Set this to true when a failure is detected
-        icon={<AlertTriangle className="size-12" />}
+        icon={<AlertTriangle className="size-6" />}
         value="Master Caution"
       /> */}
 
@@ -41,7 +41,7 @@ export function StatusBar() {
         value={`${timeConnected}s`}
         icon={
           <Activity
-            className={`size-12 ${isConnected ? "text-green-500" : "text-red-500"}`}
+            className={`size-6 ${isConnected ? "text-green-500" : "text-red-500"}`}
           />
         }
       />

@@ -37,7 +37,7 @@ export function TelemetryMiniChart({
   return (
     <Card className="border-slate-800 bg-slate-950/50 backdrop-blur-md">
       <CardHeader className="flex flex-row items-center justify-between border-b border-slate-900 px-4 py-2">
-        <CardTitle className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">
+        <CardTitle className="text-[12px] font-bold uppercase tracking-[0.15em] text-slate-400">
           {title}
         </CardTitle>
         <CardAction>
@@ -78,7 +78,7 @@ export function TelemetryMiniChart({
                 tickLine={false}
                 tick={{
                   fill: "#64748b",
-                  fontSize: 10,
+                  fontSize: 12,
                   fontFamily: "monospace",
                 }}
                 dy={5}
@@ -99,7 +99,7 @@ export function TelemetryMiniChart({
                 tickLine={false}
                 tick={{
                   fill: "#64748b",
-                  fontSize: 10,
+                  fontSize: 12,
                   fontFamily: "monospace",
                 }}
               />

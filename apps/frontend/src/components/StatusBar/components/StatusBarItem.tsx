@@ -32,7 +32,7 @@ export default function StatusBarItem({
     <Card
       className={cn(
         // Override Card's default 'flex-col' to 'flex-row' for Status Bar items
-        "flex flex-row items-center gap-3 min-w-fit w-full md:w-auto px-4 py-3 transition-all duration-300",
+        "flex flex-row items-center gap-2 min-w-fit w-full md:w-auto px-3.5 py-2 transition-all duration-300",
         variants[variant],
         // Logic for the pulsing Master Caution from the reference photo
         isAlerting &&
@@ -49,16 +49,16 @@ export default function StatusBarItem({
         <div className="shrink-0 flex items-center justify-center">{icon}</div>
       )}
 
-      <div className="flex flex-col justify-center gap-0.5">
+      <div className="flex justify-center text-center items-center gap-2 flex-wrap">
         {label && (
-          <span className="text-[1rem] font-black uppercase tracking-[0.2em] text-slate-500 leading-none">
+          <span className="text-[0.7rem] font-black uppercase tracking-[0.2em] text-slate-500 leading-none">
             {label}
           </span>
         )}
         <span
           className={cn(
             "font-bold uppercase tracking-widest leading-none font-mono",
-            label ? "text-[0.8rem]" : "text-[1rem]",
+            label ? "text-[0.75rem]" : "text-[0.85rem]",
             // Ensure Master Caution text is readable during alerts
             variant === "critical" && "text-red-400",
           )}
