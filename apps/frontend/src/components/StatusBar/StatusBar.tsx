@@ -12,7 +12,7 @@ export function StatusBar() {
   const { timeConnected } = useTimeConnected(isConnected);
 
   return (
-    <header className="flex w-full h-full items-center gap-2 py-2">
+    <header className="flex w-full h-full flex-wrap items-center gap-2 py-2">
       {/* 1. Connection Status */}
       <StatusBarItem
         variant={isConnected ? "success" : "critical"}

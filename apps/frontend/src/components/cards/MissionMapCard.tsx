@@ -7,7 +7,7 @@ const UavMap = lazy(() => import("../../components/uavMap.client"));
 export default function MissionMapCard() {
   const uavData = useContext(UavDataContext);
   if (!uavData) return null;
-  
+
   const { latitude: currentLatitude, longitude: currentLongitude } = uavData
     .data[uavData.data.length - 1] || {
     latitude: 0,
@@ -22,7 +22,7 @@ export default function MissionMapCard() {
   ]);
 
   return (
-    <Card className="w-full h-200 max-w-5xl">
+    <Card className="w-full h-200 max-w-295 xl:max-w-5xl">
       <CardHeader>Mission Map</CardHeader>
       <CardContent className="h-full p-0 relative">
         <Suspense

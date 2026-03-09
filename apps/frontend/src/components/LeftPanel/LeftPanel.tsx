@@ -15,7 +15,7 @@ export default function LeftPanel() {
   };
 
   return (
-    <aside className="h-full  w-full flex flex-col justify-start items-center gap-y-4">
+    <aside className="h-full w-full flex flex-col justify-start items-center gap-y-4">
       <RedundancyMonitor airspeed={airspeed} groundSpeed={groundSpeed} />
       <HardwareHealth
         battery={battery_level}

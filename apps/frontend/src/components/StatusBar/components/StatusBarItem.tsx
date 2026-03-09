@@ -32,7 +32,7 @@ export default function StatusBarItem({
     <Card
       className={cn(
         // Override Card's default 'flex-col' to 'flex-row' for Status Bar items
-        "flex flex-row items-center gap-3 min-w-fit px-4 py-3 transition-all duration-300",
+        "flex flex-row items-center gap-3 min-w-fit w-full md:w-auto px-4 py-3 transition-all duration-300",
         variants[variant],
         // Logic for the pulsing Master Caution from the reference photo
         isAlerting &&
