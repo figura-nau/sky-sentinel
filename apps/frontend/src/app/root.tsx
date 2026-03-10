@@ -12,9 +12,9 @@ import "../i18n.js";
 import type { Route } from "./+types/root";
 import UavDataProvider from "@/providers/UavDataProvider";
 import { useSocketConnection } from "@/hooks/useSocketConnection";
-import useBrowserTheme from "@/hooks/useBrowserTheme.js";
 import { useTranslation } from "react-i18next";
 import ThemeContextProvider from "@/providers/ThemeProvider.js";
+import { Suspense } from "react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -53,8 +53,10 @@ export default function App() {
 
   return (
     <UavDataProvider uavData={telemetryEvents}>
-      <ThemeContextProvider userTheme={useBrowserTheme()}>
-        <Outlet />
+      <ThemeContextProvider>
+        <Suspense fallback="Loading...">
+          <Outlet />
+        </Suspense>
       </ThemeContextProvider>
     </UavDataProvider>
   );
@@ -69,9 +71,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   if (isRouteErrorResponse(error)) {
     message = error.status === 404 ? "404" : t("errors.error");
     details =
-      error.status === 404
-        ? t("errors.notFound")
-        : error.statusText || details;
+      error.status === 404 ? t("errors.notFound") : error.statusText || details;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;
     stack = error.stack;

@@ -5,8 +5,8 @@
     "backend": "*"
   },
   "scripts": {
-    "dev": "venv\\Scripts\\python.exe main.py",
-    "start": "venv\\bin\\python main.py",
-    "install:py": "venv\\Scripts\\python.exe -m pip install -r requirements.txt"
+    "dev": "venv/bin/python main.py",
+    "start": "venv/bin/python main.py",
+    "install:py": "venv/bin/python -m pip install -r requirements.txt"
   }
 }

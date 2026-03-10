@@ -39,7 +39,7 @@ export function HardwareHealth({
         </div>
 
         {/* Temperature Container */}
-        <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-slate-800 bg-slate-900/40 p-3">
+        <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-border bg-card/40 p-3">
           <div className="relative">
             <Thermometer className="h-8 w-8 text-yellow-500" />
             {/* Simple visual semi-circle track simulation */}
@@ -51,7 +51,7 @@ export function HardwareHealth({
         </div>
 
         {/* Latency Container */}
-        <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-slate-800 bg-slate-900/40 p-3">
+        <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-border bg-card/40 p-3">
           <div className="flex items-end gap-0.5 h-8">
             <div className="w-1.5 h-2 bg-cyan-500 rounded-t-sm" />
             <div className="w-1.5 h-4 bg-cyan-500 rounded-t-sm" />
@@ -60,7 +60,7 @@ export function HardwareHealth({
             <div className="w-1.5 h-8 bg-cyan-500/30 rounded-t-sm" />
           </div>
           <div className="flex flex-col items-center">
-            <span className="text-[9px] uppercase font-bold text-slate-500">
+            <span className="text-[9px] uppercase font-bold text-muted-foreground">
               {t("hardwareHealth.latency")}
             </span>
             <span className="text-xs font-bold font-mono text-cyan-500">

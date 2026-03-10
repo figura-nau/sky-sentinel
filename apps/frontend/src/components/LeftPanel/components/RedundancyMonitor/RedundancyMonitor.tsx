@@ -16,8 +16,7 @@ interface RedundancyMonitorProps {
 }
 
 export function RedundancyMonitor({
-  airspeed,
-  groundSpeed,
+  airspeed, groundSpeed,
 }: RedundancyMonitorProps) {
   const { t } = useTranslation();
   const delta = Math.abs(airspeed - groundSpeed).toFixed(3);
@@ -37,22 +36,22 @@ export function RedundancyMonitor({
       <CardContent className="flex items-center justify-between py-4">
         {/* Airspeed Section */}
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">
+          <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-tight">
             {t("redundancyMonitor.airspeed")}
           </span>
-          <span className="text-3xl font-bold font-mono text-white">
+          <span className="text-3xl font-bold font-mono text-foreground">
             {airspeed}
           </span>
         </div>
 
-        <div className="h-12 w-px bg-slate-800 mx-2" />
+        <div className="h-12 w-px bg-border mx-2" />
 
         {/* GroundSpeed Section */}
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">
+          <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-tight">
             {t("redundancyMonitor.groundSpeed")}
           </span>
-          <span className="text-3xl font-bold font-mono text-white">
+          <span className="text-3xl font-bold font-mono text-foreground">
             {groundSpeed}
           </span>
         </div>
@@ -62,7 +61,7 @@ export function RedundancyMonitor({
           <div className="flex flex-col items-center gap-1">
             <div className="flex items-end gap-1 h-12">
               <div
-                className="w-4 bg-slate-700 rounded-t-sm"
+                className="w-4 bg-muted rounded-t-sm"
                 style={{ height: "80%" }}
               />
               <div
@@ -74,7 +73,7 @@ export function RedundancyMonitor({
               />
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-[10px] font-mono text-slate-400">
+              <span className="text-[10px] font-mono text-muted-foreground">
                 Δ = {delta}
               </span>
               <span

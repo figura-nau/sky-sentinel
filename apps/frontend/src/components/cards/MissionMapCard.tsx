@@ -29,7 +29,7 @@ export default function MissionMapCard() {
       <CardContent className="h-full p-0 relative">
         <Suspense
           fallback={
-            <div className="bg-slate-800 animate-pulse h-full w-full" />
+            <div className="bg-muted animate-pulse h-full w-full" />
           }
         >
           <UavMap

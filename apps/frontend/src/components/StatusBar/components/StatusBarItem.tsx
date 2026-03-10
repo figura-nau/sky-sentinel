@@ -19,11 +19,11 @@ export default function StatusBarItem({
   className,
   ...props
 }: StatusBarItemProps) {
-  // Define GCS-specific color schemes
+  // Define GCS-specific color schemes using theme variables
   const variants = {
-    default: "border-slate-800 bg-slate-950/40 text-slate-400",
+    default: "border-border bg-card/40 text-muted-foreground",
     critical:
-      "border-red-500/50 bg-red-950/40 text-red-500 shadow-[0_0_20px_rgba(239,68,68,0.15)]",
+      "border-destructive/50 bg-destructive/20 text-destructive shadow-[0_0_20px_rgba(239,68,68,0.15)]",
     success: "border-green-500/30 bg-green-950/20 text-green-500",
     info: "border-blue-500/30 bg-blue-950/20 text-blue-400",
   };
@@ -37,7 +37,7 @@ export default function StatusBarItem({
         // Logic for the pulsing Master Caution from the reference photo
         isAlerting &&
           variant === "critical" &&
-          "animate-pulse border-red-500 bg-red-600/20 shadow-[0_0_25px_rgba(239,68,68,0.4)]",
+          "animate-pulse border-destructive bg-destructive/20 shadow-[0_0_25px_rgba(239,68,68,0.4)]",
         isAlerting &&
           variant === "success" &&
           "shadow-[0_0_15px_rgba(34,197,94,0.2)]",
@@ -51,7 +51,7 @@ export default function StatusBarItem({
 
       <div className="flex justify-center text-center items-center gap-2 flex-wrap">
         {label && (
-          <span className="text-[0.7rem] font-black uppercase tracking-[0.2em] text-slate-500 leading-none">
+          <span className="text-[0.7rem] font-black uppercase tracking-[0.2em] text-muted-foreground leading-none">
             {label}
           </span>
         )}
@@ -60,7 +60,7 @@ export default function StatusBarItem({
             "font-bold uppercase tracking-widest leading-none font-mono",
             label ? "text-[0.75rem]" : "text-[0.85rem]",
             // Ensure Master Caution text is readable during alerts
-            variant === "critical" && "text-red-400",
+            variant === "critical" && "text-destructive",
           )}
         >
           {value}
