@@ -1,4 +1,4 @@
-import type { FailureType, Severity } from "@prisma/client";
+import type { FailureLog } from "@prisma/client";
 import { useEffect, useState } from "react";
 
 export const useGetFailureLogs = () => {
@@ -17,17 +17,7 @@ export const useGetFailureLogs = () => {
     return { failureLogs };
   };
 
-  const [failureLogs, setFailureLogs] = useState<
-    {
-      id: string;
-      timestamp: string;
-      type: FailureType;
-      severity: Severity;
-      description: string | null;
-      isResolved: boolean;
-      uavDataId: string;
-    }[]
-  >([]);
+  const [failureLogs, setFailureLogs] = useState<FailureLog[]>([]);
 
   useEffect(() => {
     fetchFailures()

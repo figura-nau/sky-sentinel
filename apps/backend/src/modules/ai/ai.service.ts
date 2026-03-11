@@ -30,10 +30,12 @@ Return ONLY a valid JSON object with this structure:
   "explanation": "Correlation-based technical reasoning",
   "suggested_action": "Specific repair step"
 }}
+
+The language of the response is: {lang}
 `;
 const AI_MODEL = 'gemini-2.5-flash';
 const RESPONSE_TYPE = 'application/json';
-interface AiAnalysis {
+export interface AiAnalysis {
   root_cause: string;
   severity: string;
   explanation: string;
@@ -50,6 +52,7 @@ export class AiService {
   async analyzeFailure(data: {
     uav: UAVdata;
     failure: FailureLog;
+    responseLang: string;
   }): Promise<AiAnalysis> {
     const finalPrompt = FAILURE_ANALYZE_PROMPT.replace(
       '{airspeed}',
@@ -65,7 +68,8 @@ export class AiService {
       .replace(
         '{failureDescription}',
         data.failure.description ?? 'Unknown Error',
-      );
+      )
+      .replace('{lang}', data.responseLang ?? 'English');
 
     try {
       const resp = await this.googleGenAI.models.generateContent({

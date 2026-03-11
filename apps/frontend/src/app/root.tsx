@@ -15,9 +15,10 @@ import UavDataProvider from "@/providers/UavDataProvider";
 import { useSocketConnection } from "@/hooks/useSocketConnection";
 import { useTranslation } from "react-i18next";
 import ThemeContextProvider from "@/providers/ThemeProvider";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { CookiesProvider } from "react-cookie";
 import { getLocale, initI18nServer } from "../i18n.server";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -70,6 +71,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   const { telemetryEvents } = useSocketConnection();
   const { i18n } = useTranslation();
+  const [queryClient] = useState(() => new QueryClient());
 
   // Update cookie when language changes
   useEffect(() => {
@@ -79,15 +81,17 @@ export default function App() {
   }, [i18n.language]);
 
   return (
-    <CookiesProvider defaultSetOptions={{ path: "/" }}>
-      <UavDataProvider uavData={telemetryEvents}>
-        <ThemeContextProvider>
-          <Suspense fallback="Loading...">
-            <Outlet />
-          </Suspense>
-        </ThemeContextProvider>
-      </UavDataProvider>
-    </CookiesProvider>
+    <QueryClientProvider client={queryClient}>
+      <CookiesProvider defaultSetOptions={{ path: "/" }}>
+        <UavDataProvider uavData={telemetryEvents}>
+          <ThemeContextProvider>
+            <Suspense fallback="Loading...">
+              <Outlet />
+            </Suspense>
+          </ThemeContextProvider>
+        </UavDataProvider>
+      </CookiesProvider>
+    </QueryClientProvider>
   );
 }
 
@@ -107,7 +111,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
+    <main className="pt-16 p-4 container mx-auto flex flex-col justify-center items-center font-mono">
       <h1>{message}</h1>
       <p>{details}</p>
       {stack && (
