@@ -30,7 +30,6 @@ export default function MissionMapCard() {
   const LoadingSkeleton = (
     <div className="bg-muted rounded-md animate-pulse h-full w-full" />
   );
-  console.log(flightHistory, { lat: currentLatitude, lng: currentLongitude }, homePos)
   return (
     <Card className="w-full h-200 max-w-295 xl:max-w-5xl">
       <CardHeader>{t("missionMap.title")}</CardHeader>

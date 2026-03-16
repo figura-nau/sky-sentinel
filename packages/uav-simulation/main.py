@@ -65,10 +65,10 @@ TEXTS = {
         "live": "● LIVE",
         "lang_toggle": "🇺🇦 UA",
         "theme_toggle": "🌓 THEME",
-        "failures": ["NORMAL", "PITOT CLOG", "ENGINE FAIL", "SERVO STALL"],
+        "failures": ["NORMAL", "PITOT CLOG", "ENGINE FAIL", "SERVO STALL", "SIGNAL LOSS", "HIGH LAG", "LOW BATTERY", "OVERHEAT"],
         "routes_btn": ["City Patrol", "Highway E40", "Border Sweep", "Return Base"],
         "metrics": ["ALTITUDE (m)", "AIRSPEED (km/h)", "LATITUDE", "LONGITUDE", 
-                    "BATTERY (%)", "THROTTLE (%)", "TEMP (°C)", "RSSI (dBm)"],
+                    "BATTERY (%)", "THROTTLE (%)", "TEMP (°C)", "RSSI (dBm)", "LATENCY (ms)"],
         "log_start": "Stream started.",
         "log_stop": "Stream stopped.",
         "log_route": "Redirecting to"
@@ -83,11 +83,11 @@ TEXTS = {
         "live": "● В ЕФІРІ",
         "lang_toggle": "🇺🇸 EN",
         "theme_toggle": "🌓 ТЕМА",
-        "failures": ["НОРМА", "ВІДМОВА ПВД", "ВІДМОВА ДВИГУНА", "ЗАКЛИНЮВАННЯ"],
+        "failures": ["НОРМА", "ВІДМОВА ПВД", "ВІДМОВА ДВИГУНА", "ЗАКЛИНЮВАННЯ", "СЛАБКИЙ СИГНАЛ", "ЗАТРИМКА", "БАТАРЕЯ", "ПЕРЕГРІВ"],
         "routes_btn": ["Патруль міста", "Траса E40", "Обліт кордону", "На базу"],
         "metrics": ["ВИСОТА (м)", "ШВИД. (км/год)", "ШИРОТА", "ДОВГОТА", 
-                    "БАТАРЕЯ (%)", "ТЯГА (%)", "ТЕМП (°C)", "RSSI (дБм)"],
-        "log_start": "Трансляцію розпочато.",
+                    "БАТАРЕЯ (%)", "ТЯГА (%)", "ТЕМП (°C)", "RSSI (дБм)", "ЗАТРИМКА (мс)"],
+        "log_start": "Трансляцію розпозочато.",
         "log_stop": "Трансляцію зупинено.",
         "log_route": "Зміна маршруту на"
     }
@@ -176,7 +176,7 @@ class UavSimulatorGUI:
         self.fail_frame.pack(fill="x", pady=10, ipady=5)
         self.ui_refs["frames"].append(self.fail_frame)
 
-        fail_modes = ["NORMAL", "PITOT", "ENGINE", "SERVO"]
+        fail_modes = ["NORMAL", "PITOT", "ENGINE", "SERVO", "SIGNAL", "LATENCY", "BATTERY", "TEMP"]
         for i, mode in enumerate(fail_modes):
             r, c_idx = divmod(i, 2)
             btn = tk.Button(self.fail_frame, text=t["failures"][i], font=FONTS["body"],
@@ -226,7 +226,7 @@ class UavSimulatorGUI:
         self.tele_frame.pack(fill="x", pady=10)
         self.ui_refs["frames"].append(self.tele_frame)
 
-        metric_keys = ["altitude", "airspeed", "latitude", "longitude", "battery_level", "throttle", "temperature", "rssi"]
+        metric_keys = ["altitude", "airspeed", "latitude", "longitude", "battery_level", "throttle", "temperature", "rssi", "latency"]
         for i, key in enumerate(metric_keys):
             r, c_idx = divmod(i, 2)
             cell = tk.Frame(self.tele_frame, bg=c["bg_panel"], padx=10, pady=5)
@@ -243,6 +243,7 @@ class UavSimulatorGUI:
             
         self.tele_frame.grid_columnconfigure(0, weight=1)
         self.tele_frame.grid_columnconfigure(1, weight=1)
+        if len(metric_keys) > 8: self.tele_frame.grid_columnconfigure(2, weight=1)
 
         self.log_area = scrolledtext.ScrolledText(right_col, height=12, bg=c["terminal_bg"], 
                                                   fg=c["terminal_text"], font=FONTS["mono"],
@@ -321,13 +322,21 @@ class UavSimulatorGUI:
                 "NORMAL": "Standard operation state (Normal)",
                 "PITOT": "Pitot tube functional failure",
                 "ENGINE": "Gradual engine failure (Thrust degradation)",
-                "SERVO": "Servo hardware failure (Critical stall)"
+                "SERVO": "Servo hardware failure (Critical stall)",
+                "SIGNAL": "Radio link degradation (Low RSSI)",
+                "LATENCY": "Network congestion (High latency)",
+                "BATTERY": "Power supply degradation (Critical Voltage)",
+                "TEMP": "Thermal overload (Hardware Overheat)"
             },
             "UA": {
                 "NORMAL": "Стан штатного функціонування (Норма)",
                 "PITOT": "Функціональна відмова ПВД",
                 "ENGINE": "Поступова відмова силової установки",
-                "SERVO": "Апаратна відмова виконавчого механізму"
+                "SERVO": "Апаратна відмова виконавчого механізму",
+                "SIGNAL": "Деградація каналу зв'язку (Низький RSSI)",
+                "LATENCY": "Перевантаження мережі (Висока затримка)",
+                "BATTERY": "Деградація системи живлення (Розряд)",
+                "TEMP": "Термічне перевантаження (Перегрів)"
             }
         }
         color = self.colors["accent_danger"] if mode != "NORMAL" else self.colors["accent_success"]
@@ -364,20 +373,18 @@ class UavSimulatorGUI:
         while self.running:
             # --- ЛЕКЦІЯ №10: МОДЕЛЮВАННЯ ФІЗИЧНИХ ПРОЦЕСІВ ---
             
+            # Рандомні коливання для Latency та RSSI (Штатна робота)
+            self.state["rssi"] = round(random.uniform(-65, -58), 1)
+            self.state["latency"] = round(random.uniform(25, 45), 1)
+
             if self.failure_mode == "PITOT":
                 # Сценарій: Закупорка приймача повітряного тиску (ПВД)
-                # Результат: Airspeed (датчик) падає, але GroundSpeed (фізичний рух) стабільний.
-                # Це створює "Нев'язку" (Residual) для алгоритму виявлення.
                 self.state["airspeed"] = 10.2 
                 self.state["verticalSpeed"] = round(random.uniform(-0.1, 0.1), 1)
                 
             elif self.failure_mode == "ENGINE":
-                # Сценарій: Деградація енергетичних параметрів (Лекція №8-9)
-                # Результат: Throttle 100%, але VerticalSpeed < 0 (Втрата висоти).
-                # Доводить неможливість виконання польотного завдання.
+                # Сценарій: Деградація силової установки
                 self.state["throttle"] = 100.0
-                if self.state["verticalSpeed"] > 10:
-                    self.state["verticalSpeed"] = -5.8 
                 if self.state["altitude"] > 10:
                     self.state["altitude"] -= 5.8
                 if self.state["airspeed"] > 10:
@@ -385,18 +392,40 @@ class UavSimulatorGUI:
                     
             elif self.failure_mode == "SERVO":
                 # Сценарій: Заклинювання привода (Апаратна відмова)
-                # Результат: Струм (servoCurrent) перевищує поріг 4.0А.
-                # Лекція №10: Контроль непрямих параметрів стану.
                 self.state["servoCurrent"] = 4.9
                 self.state["roll"] = random.uniform(15.0, 45.0)
+
+            elif self.failure_mode == "SIGNAL":
+                # Сценарій: Слабкий сигнал
+                self.state["rssi"] = round(random.uniform(-95, -88), 1)
+                self.state["latency"] = round(random.uniform(100, 300), 1)
+            
+            elif self.failure_mode == "LATENCY":
+                # Сценарій: Висока затримка
+                self.state["latency"] = round(random.uniform(800, 2500), 1)
+                
+            elif self.failure_mode == "BATTERY":
+                # Сценарій: Швидкий розряд АКБ
+                self.state["battery_level"] -= round(random.uniform(2.0, 5.0), 1)
+                if self.state["battery_level"] < 0: self.state["battery_level"] = 0
+                
+            elif self.failure_mode == "TEMP":
+                # Сценарій: Перегрів електроніки
+                self.state["temperature"] += round(random.uniform(1.5, 3.0), 1)
+                if self.state["temperature"] > 100: self.state["temperature"] = 100.0
                 
             else:
-                # NORMAL: Штатна робота CIUS
-                # Параметри знаходяться в межах допусків (Dormant errors absent)
+                # NORMAL: Штатна робота
                 self.state["airspeed"] = round(random.uniform(84, 86), 1)
                 self.state["verticalSpeed"] = round(random.uniform(-0.1, 0.1), 1)
                 self.state["servoCurrent"] = round(random.uniform(0.6, 0.9), 1)
                 self.state["altitude"] += self.state["verticalSpeed"]
+                
+                # Поступовий розряд та стабілізація темп
+                self.state["battery_level"] -= 0.05
+                if self.state["temperature"] > 42: self.state["temperature"] -= 0.5
+                elif self.state["temperature"] < 40: self.state["temperature"] += 0.5
+
 
             self.tick += 0.2 
             
@@ -452,12 +481,31 @@ class UavSimulatorGUI:
         for key, widget in self.telemetry_labels.items():
             if key in self.state:
                 val = self.state[key]
+                c = self.colors
+                # --- ЛЕКЦІЯ №4: МОНІТОРИНГ ГРАНИЧНИХ ЗНАЧЕНЬ ---
+                color = c["accent_primary"]
+                if key == "latency":
+                    if val > 800: color = c["accent_danger"]
+                    elif val > 150: color = c["accent_warning"]
+                elif key == "rssi":
+                    if val < -85: color = c["accent_danger"]
+                    elif val < -75: color = c["accent_warning"]
+                elif key == "battery_level":
+                    if val < 15: color = c["accent_danger"]
+                    elif val < 30: color = c["accent_warning"]
+                elif key == "temperature":
+                    if val > 75: color = c["accent_danger"]
+                    elif val > 60: color = c["accent_warning"]
+                elif key == "servoCurrent":
+                    if val > 4.0: color = c["accent_danger"]
+                    elif val > 2.0: color = c["accent_warning"]
+
                 if isinstance(val, float):
                     fmt = "{:.4f}" if key in ["latitude", "longitude"] else "{:.1f}"
                     text_val = fmt.format(val)
                 else:
                     text_val = str(val)
-                widget.config(text=text_val)
+                widget.config(text=text_val, fg=color)
 
     def start_sim(self):
         if not self.running:

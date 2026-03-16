@@ -5,6 +5,7 @@ import {
   YAxis,
   CartesianGrid,
   ResponsiveContainer,
+  Tooltip,
 } from "recharts";
 import { MoreHorizontal } from "lucide-react";
 import {
@@ -106,6 +107,22 @@ export function TelemetryMiniChart({
                   fontSize: 12,
                   fontFamily: "monospace",
                 }}
+              />
+
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#0f172a",
+                  borderColor: "#1e293b",
+                  borderRadius: "8px",
+                  fontSize: "12px",
+                  fontFamily: "monospace",
+                  color: "#f8fafc",
+                  textTransform: "uppercase",
+                }}
+                itemStyle={{ color: color }}
+                labelFormatter={(label) => formatTime(label)}
+                formatter={(value) => [value, title]}
+                cursor={{ stroke: color, strokeWidth: 1, strokeDasharray: "4 4" }}
               />
 
               <Area

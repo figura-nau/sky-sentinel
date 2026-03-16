@@ -8,7 +8,6 @@ const useBrowserTheme = (): SupportedThemes => {
     const isSystemInDarkMode = window.matchMedia(
       "(prefers-color-scheme: dark)",
     ).matches;
-    console.log("System theme is dark:", isSystemInDarkMode);
     setTheme(isSystemInDarkMode ? "dark" : "light");
   }, []);
 

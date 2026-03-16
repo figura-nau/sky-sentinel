@@ -322,7 +322,11 @@ export class FailuresService {
   }
 
   async findAll(): Promise<FailureLog[]> {
-    return await this.prismaService.failureLog.findMany();
+    return await this.prismaService.failureLog.findMany({
+      orderBy: {
+        timestamp: 'desc',
+      },
+    });
   }
 
   async findOne(id: string): Promise<FailureLog | null> {

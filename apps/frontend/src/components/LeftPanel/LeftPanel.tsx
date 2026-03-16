@@ -4,13 +4,14 @@ import { HardwareHealth, RedundancyMonitor } from "./components";
 
 export default function LeftPanel() {
   const latestData = useContext(LatestTelemetryContext);
-  const { airspeed, groundSpeed, battery_level, temperature, latency } =
+  const { airspeed, groundSpeed, battery_level, temperature, latency, rssi } =
     latestData || {
       airspeed: 0,
       groundSpeed: 0,
       battery_level: 0,
       temperature: 0,
       latency: 0,
+      rssi: 0
     };
 
   return (
@@ -20,6 +21,7 @@ export default function LeftPanel() {
         battery={battery_level}
         temp={temperature}
         latency={latency}
+        rssi={rssi}
       />
     </aside>
   );

@@ -74,7 +74,7 @@ export function RedundancyMonitor({
             </div>
             <div className="flex flex-col items-center">
               <span className="text-[10px]  text-muted-foreground">
-                Δ = {delta}
+                Δ = {Number(delta).toFixed(2)}
               </span>
               <span
                 className={cn(
