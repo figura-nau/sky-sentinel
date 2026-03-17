@@ -1,4 +1,3 @@
-// AiAnalyzeModal/AiAnalyzeModal.tsx
 import { Download, AlertCircle, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -6,7 +5,7 @@ import {
   DialogContent,
   DialogTitle,
   DialogClose,
-} from "@/components/ui/dialog"; // Adjust import path to your shadcn dialog file
+} from "@/components/ui/dialog";
 import {
   AiStatusHeader,
   DiagnosisDetails,

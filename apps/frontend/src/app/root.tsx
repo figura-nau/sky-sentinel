@@ -22,6 +22,24 @@ import { AlertTriangle, Home, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const links: Route.LinksFunction = () => [
+  {
+    rel: "icon",
+    type: "image/svg+xml",
+    href: "/favicon.ico/favicon.svg",
+  },
+  {
+    rel: "icon",
+    type: "image/png",
+    href: "/favicon.ico/favicon-96x96.png",
+    sizes: "96x96",
+  },
+  {
+    rel: "apple-touch-icon",
+    sizes: "180x180",
+    href: "/favicon.ico/apple-touch-icon.png",
+  },
+  { rel: "shortcut icon", href: "/favicon.ico/favicon.ico" },
+  { rel: "manifest", href: "/favicon.ico/site.webmanifest" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",
@@ -76,13 +94,13 @@ export default function App() {
   // Update cookie when language changes
   useEffect(() => {
     if (i18n.language) {
-      document.cookie = `i18n-locale=${i18n.language}; path=/; Max-Age=31536000; SameSite=Lax`;
+      document.cookie = `i18n-locale=${i18n.language}; Max-Age=31536000`;
     }
   }, [i18n.language]);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <CookiesProvider defaultSetOptions={{ path: "/" }}>
+      <CookiesProvider defaultSetOptions={{ path: "/", sameSite: "lax" }}>
         <ThemeContextProvider>
           <Suspense fallback="Loading...">
             <Outlet />
