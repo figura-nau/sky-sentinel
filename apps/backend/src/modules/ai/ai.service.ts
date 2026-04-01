@@ -10,10 +10,10 @@ You are an expert UAV (Unmanned Aerial Vehicle) Diagnostic Engineer.
 Analyze telemetry data to diagnose flight failures for a drone.
 
 ### TELEMETRY CONTEXT:
-- Velocity: {airspeed} m/s (Vertical: {verticalSpeed} m/s)
+- Velocity: {airspeed} m/s
 - Attitude: Pitch {pitch}°, Roll {roll}°
 - Environment: Temp {temperature}°C
-- System: Battery {battery}%, Gear Status: {gear_status}, Altitude: {altitude}
+- System: Battery {battery}%, Altitude: {altitude}
 - Error Log: {failureDescription}
 
 ### TASK:
@@ -59,11 +59,9 @@ export class AiService {
       data.uav.airspeed?.toString() ?? '0',
     )
       .replace('{pitch}', data.uav.pitch?.toString() ?? '0')
-      .replace('{verticalSpeed}', data.uav.verticalSpeed?.toString() ?? '0')
       .replace('{roll}', data.uav.roll?.toString() ?? '0')
-      .replace('{gear_status}', data.uav.gear_status?.toString() ?? 'UNKNOWN')
       .replace('{temperature}', data.uav.temperature?.toString() ?? 'N/A')
-      .replace('{battery}', data.uav.battery_level?.toString() ?? 'N/A')
+      .replace('{battery}', data.uav.batt_rem?.toString() ?? 'N/A')
       .replace('{altitude}', data.uav.altitude?.toString() ?? 'N/A')
       .replace(
         '{failureDescription}',

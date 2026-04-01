@@ -21,6 +21,10 @@ enum Severity {
   INFO
 }
 
+enum CAM_STATUS {
+  ACTIVE
+  DEGRADED
+}
 model FailureLog {
   id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   timestamp   DateTime    @default(now())
@@ -32,38 +36,33 @@ model FailureLog {
   uavData   UAVdata @relation(fields: [uavDataId], references: [id])
   uavDataId String  @db.Uuid
 }
-
 model UAVdata {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   timestamp DateTime @default(now())
 
-  // Геодезичні дані
   latitude  Float
   longitude Float
   altitude  Float
+  fix_type  Int // 0-6; <3 = unreliable GPS
 
-  // Динаміка польоту (необхідно для діагностики)
-  verticalSpeed Float // Для детекції Hard Landing
-  airspeed      Float // Для детекції Stall
-  pitch         Float
-  roll          Float
+  airspeed    Float // Для детекції Stall
+  groundspeed Float // m/s  — basis for analytical redundancy (to compare with Airspeed)
+  heading     Float // 0-359 degrees
+  pitch       Float
+  roll        Float
+  throttle    Float // 0-100% (для порівняння з RPM/Vertical Speed)
 
-  // Стан систем
-  gear_status   Int
-  battery_level Float
-  temperature   Float // Для детекції Overheat
+  batt_rem    Float
+  servo_current  Float // To detect servo stalls/blockage
+  vibration   Float[] // m/s²  [X, Y, Z]
+  rssi        Float //  0-254 Рівень сигналу (dBm)
 
-  // Мережеві параметри (для діагностики NETWORK)
-  rssi    Float? // Рівень сигналу (dBm)
-  latency Float? // Затримка (ms)
+  cam_status CAM_STATUS // "ACTIVE", "DEGRADED" — для діагностики проблем з камерою
+  signal_quality Float // percent video-link quality
+  loiter_radius  Float // m, для діагностики проблем з керуванням (може вказувати на проблеми з GPS або керуванням)
 
-  // Added for Analytical Redundancy (Lecture №10)
-  groundSpeed  Float // From GPS (to compare with Airspeed)
-  throttle     Float // 0-100% (to compare with RPM/Vertical Speed)
-  servoCurrent Float // To detect servo stalls/blockage
-
-  // Emergency State (Section 5 of lectures)
-  logs          FailureLog[]
+  temperature Float // Для детекції Overheat
+  logs FailureLog[]
 
   @@index([timestamp])
 }
