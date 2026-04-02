@@ -1,5 +1,5 @@
+import type { UAVdata } from "@prisma/client";
 import { createContext } from "react";
-import type { UAVdata } from "@sky-sentinel/typescript/types";
 
 export type FlightPathPoint = { lat: number; lng: number };
 

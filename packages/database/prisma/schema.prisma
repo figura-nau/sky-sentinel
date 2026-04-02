@@ -21,7 +21,7 @@ enum Severity {
   INFO
 }
 
-enum CAM_STATUS {
+enum camStatus {
   ACTIVE
   DEGRADED
 }
@@ -43,7 +43,7 @@ model UAVdata {
   latitude  Float
   longitude Float
   altitude  Float
-  fix_type  Int // 0-6; <3 = unreliable GPS
+  fixType  Int // 0-6; <3 = unreliable GPS
 
   airspeed    Float // Для детекції Stall
   groundspeed Float // m/s  — basis for analytical redundancy (to compare with Airspeed)
@@ -52,14 +52,14 @@ model UAVdata {
   roll        Float
   throttle    Float // 0-100% (для порівняння з RPM/Vertical Speed)
 
-  batt_rem    Float
-  servo_current  Float // To detect servo stalls/blockage
+  battRem    Float
+  servoCurrent  Float // To detect servo stalls/blockage
   vibration   Float[] // m/s²  [X, Y, Z]
   rssi        Float //  0-254 Рівень сигналу (dBm)
 
-  cam_status CAM_STATUS // "ACTIVE", "DEGRADED" — для діагностики проблем з камерою
-  signal_quality Float // percent video-link quality
-  loiter_radius  Float // m, для діагностики проблем з керуванням (може вказувати на проблеми з GPS або керуванням)
+  camStatus camStatus // "ACTIVE", "DEGRADED" — для діагностики проблем з камерою
+  signalQuality Float // percent video-link quality
+  loiterRadius  Float // m, для діагностики проблем з керуванням (може вказувати на проблеми з GPS або керуванням)
 
   temperature Float // Для детекції Overheat
   logs FailureLog[]

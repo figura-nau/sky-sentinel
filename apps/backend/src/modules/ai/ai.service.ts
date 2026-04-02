@@ -15,7 +15,7 @@ Analyze telemetry data to diagnose flight failures for a drone.
 - Velocity: {airspeed} m/s, {groundspeed} m/s
 - Attitude: Pitch {pitch}°, Roll {roll}°
 - Environment: Temp {temperature}°C
-- Servo: {servo_current}, vibration: {vibration} (m/s²  [X, Y, Z])
+- Servo: {servoCurrent}, vibration: {vibration} (m/s²  [X, Y, Z])
 - System: Battery {battery}%, Altitude: {altitude}
 - Error Log: {failureDescription}
 
@@ -69,12 +69,12 @@ export class AiService {
     )
       .replace('{pitch}', data.uav.pitch?.toString() ?? '0')
       .replace('{groundspeed}', data.uav.groundspeed?.toString() ?? '0')
-      .replace('{servo_current}', data.uav.servo_current?.toString() ?? '0')
+      .replace('{servoCurrent}', data.uav.servoCurrent?.toString() ?? '0')
       .replace('{vibration}', data.uav.vibration?.toString() ?? '0')
       .replace('{roll}', data.uav.roll?.toString() ?? '0')
       .replace('{severity}', JSON.stringify(Object.keys(Severity)))
       .replace('{temperature}', data.uav.temperature?.toString() ?? 'N/A')
-      .replace('{battery}', data.uav.batt_rem?.toString() ?? 'N/A')
+      .replace('{battery}', data.uav.battRem?.toString() ?? 'N/A')
       .replace('{altitude}', data.uav.altitude?.toString() ?? 'N/A')
       .replace(
         '{failureDescription}',

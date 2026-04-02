@@ -50,7 +50,7 @@ export const VIB_CRIT_MS2 = 1.2;
 export const RSSI_WARN = 90;
 export const RSSI_CRIT = 50;
 
-/** fix_type < 3 means no 3D GPS fix. Navigation data must be treated as invalid. */
+/** fixType < 3 means no 3D GPS fix. Navigation data must be treated as invalid. */
 export const GPS_MIN_FIX = 3;
 
 /** Telemetry timeout (seconds). If no packet arrives in this window,

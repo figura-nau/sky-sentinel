@@ -76,7 +76,7 @@ TEXTS = {
             "ALT REL (m)", "AIRSPEED (m/s)", "GROUNDSPEED (m/s)",
             "HEADING (°)", "LATITUDE", "LONGITUDE",
             "BATT REM (%)", "SERVO CURR (A)", "RSSI",
-            "CAM STATUS", "SIGNAL QUAL (%)", "LOITER R (m)"
+            "TEMP (°C)", "SIGNAL QUAL (%)", "LOITER R (m)"
         ],
         "log_start": "Stream started.",
         "log_stop":  "Stream stopped.",
@@ -99,10 +99,10 @@ TEXTS = {
         ],
         "routes_btn": ["Патруль периметра", "Лінійний прогін", "Орбіта цілі", "На базу"],
         "metrics": [
-            "ВИСОТА ВІД. (м)", "ПОВІТР. ШВ. (м/с)", "ЗЕМНА ШВ. (м/с)",
+            "ВИСОТА (м)", "ПОВІТР. ШВ. (м/с)", "ЗЕМНА ШВ. (м/с)",
             "КУРС (°)", "ШИРОТА", "ДОВГОТА",
             "БАТАРЕЯ (%)", "СТРУМ СЕРВО (А)", "RSSI",
-            "КАМ. СТАТУС", "ЯКІСТЬ СИГ. (%)", "РАДІУС ЛОТ. (м)"
+            "ТЕМПЕРАТУРА (°C)", "ЯКІСТЬ СИГ. (%)", "РАДІУС ЛОТ. (м)"
         ],
         "log_start": "Трансляцію розпочато.",
         "log_stop":  "Трансляцію зупинено.",
@@ -112,10 +112,10 @@ TEXTS = {
 
 # Keys shown in the telemetry grid — must match "metrics" lists above
 METRIC_KEYS = [
-    "alt_rel", "airspeed", "groundspeed",
-    "heading", "lat", "lon",
-    "batt_rem", "servo_current", "rssi",
-    "cam_status", "signal_quality", "loiter_radius"
+    "altitude", "airspeed", "groundspeed",
+    "heading", "latitude", "longitude",
+    "battRem", "servoCurrent", "rssi",
+    "temperature", "signalQuality", "loiter_radius"
 ]
 
 
@@ -137,10 +137,10 @@ class UavSimulatorGUI:
         # ── STATE — all keys match the agreed JSON schema ──────────────────
         self.state = {
             # Navigation block
-            "lat":      50.4501,
-            "lon":      30.5234,
-            "alt_rel":  350.0,       # metres above takeoff point
-            "fix_type": 3,           # 0-6; <3 = unreliable GPS
+            "latitude":      50.4501,
+            "longitude":      30.5234,
+            "altitude":  350.0,       # metres above takeoff point
+            "fixType": 3,           # 0-6; <3 = unreliable GPS
 
             # Flight dynamics block
             "airspeed":    75.0,     # m/s
@@ -151,20 +151,21 @@ class UavSimulatorGUI:
             "throttle":    55.0,     # percent
 
             # Diagnostics block
-            "batt_rem":      88.0,           # percent
-            "servo_current":  1.2,           # Amperes
+            "battRem":      88.0,           # percent
+            "servoCurrent":  1.2,           # Amperes
             "vibration":     [0.12, 0.09, 0.31],  # m/s²  [X, Y, Z]
             "rssi":          187,             # 0-254  (RC_CHANNELS compatible)
 
             # Recon-specific extensions
-            "cam_status":     "ACTIVE",
-            "signal_quality": 92,            # percent video-link quality
+            "camStatus":     "ACTIVE",
+            "signalQuality": 92,            # percent video-link quality
             "loiter_radius":  500,           # metres patrol radius
+            "temperature":    38.0,          # degrees Celsius
         }
 
-        self.target_lat           = self.state["lat"]
-        self.target_lon           = self.state["lon"]
-        self.target_alt_rel       = self.state["alt_rel"]
+        self.target_lat           = self.state["latitude"]
+        self.target_lon           = self.state["longitude"]
+        self.target_alt           = self.state["altitude"]
         self.target_loiter_radius = self.state["loiter_radius"]
         self.tick = 0.0
         self.current_route = "RTB"
@@ -378,20 +379,20 @@ class UavSimulatorGUI:
                 "NORMAL":  "Standard operation (Normal)",
                 "PITOT":   "Pitot tube functional failure → airspeed frozen",
                 "ENGINE":  "Engine degradation → thrust loss, altitude drop",
-                "SERVO":   "Servo hardware failure → servo_current spike + roll divergence",
+                "SERVO":   "Servo hardware failure → servoCurrent spike + roll divergence",
                 "SIGNAL":  "Radio link degradation → rssi critical",
                 "LATENCY": "Network congestion → high latency",
-                "BATTERY": "Power supply degradation → batt_rem drain",
+                "BATTERY": "Power supply degradation → battRem drain",
                 "TEMP":    "Thermal overload → electronics overheat"
             },
             "UA": {
                 "NORMAL":  "Штатне функціонування (Норма)",
                 "PITOT":   "Відмова ПВД → airspeed заморожено",
                 "ENGINE":  "Деградація двигуна → втрата тяги, зниження висоти",
-                "SERVO":   "Апаратна відмова серво → стрибок servo_current + крен",
+                "SERVO":   "Апаратна відмова серво → стрибок servoCurrent + крен",
                 "SIGNAL":  "Деградація радіоканалу → rssi критичний",
                 "LATENCY": "Перевантаження мережі → висока затримка",
-                "BATTERY": "Деградація живлення → розряд batt_rem",
+                "BATTERY": "Деградація живлення → розряд battRem",
                 "TEMP":    "Термічне перевантаження → перегрів електроніки"
             }
         }
@@ -412,31 +413,31 @@ class UavSimulatorGUI:
             # PERIMETER — rectangular surveillance loop around a POI.
             # Large radius, higher altitude for wide sensor coverage.
             "PERIMETER": {
-                "lat": 50.4501, "lon": 30.5234,
-                "alt_rel": 380.0, "loiter_radius": 800,
+                "latitude": 50.4501, "longitude": 30.5234,
+                "altitude": 380.0, "loiter_radius": 800,
             },
             # SWEEP — back-and-forth transect lines (lawnmower pattern).
             # Narrow oscillation width; simulates systematic area coverage.
             "SWEEP": {
-                "lat": 50.4200, "lon": 30.5500,
-                "alt_rel": 420.0, "loiter_radius": 300,
+                "latitude": 50.4200, "longitude": 30.5500,
+                "altitude": 420.0, "loiter_radius": 300,
             },
             # ORBIT — tight circle around a fixed ground target.
             # Small radius, lower altitude for close sensor look-angle.
             "ORBIT": {
-                "lat": 50.4650, "lon": 30.4900,
-                "alt_rel": 250.0, "loiter_radius": 200,
+                "latitude": 50.4650, "longitude": 30.4900,
+                "altitude": 250.0, "loiter_radius": 200,
             },
             # RTB — Return To Base, straight flight to home, descending.
             "RTB": {
-                "lat": 50.4100, "lon": 30.5000,
-                "alt_rel": 150.0, "loiter_radius": 0,
+                "latitude": 50.4100, "longitude": 30.5000,
+                "altitude": 150.0, "loiter_radius": 0,
             },
         }
         cfg = route_cfg.get(route, {})
-        self.target_lat           = cfg.get("lat",           self.state["lat"])
-        self.target_lon           = cfg.get("lon",           self.state["lon"])
-        self.target_alt_rel       = cfg.get("alt_rel",       self.state["alt_rel"])
+        self.target_lat           = cfg.get("latitude",           self.state["latitude"])
+        self.target_lon           = cfg.get("longitude",           self.state["longitude"])
+        self.target_alt           = cfg.get("altitude",       self.state["altitude"])
         self.target_loiter_radius = cfg.get("loiter_radius", self.state["loiter_radius"])
 
     # ────────────────────────────────────────────────────────────────────────
@@ -486,16 +487,6 @@ class UavSimulatorGUI:
             # ── FAILURE SCENARIOS ─────────────────────────────────────────
 
             if self.failure_mode == "PITOT":
-                # ── Pitot tube clog ──────────────────────────────────────
-                # Real behaviour: the pressure port freezes/blocks, so the
-                # airspeed sensor stops updating — it holds the last valid
-                # reading, not zero. groundspeed (GPS) keeps updating normally.
-                # This is exactly what triggers the analytical redundancy check
-                # in the backend: |groundspeed − airspeed| > threshold.
-                #
-                # Fix vs previous: we no longer set airspeed = 10.2 (which
-                # also triggered the stall alarm — a different failure).
-                # Instead we freeze it at the moment PITOT mode was entered.
                 if pitot_frozen_speed is None:
                     pitot_frozen_speed = self.state["airspeed"]   # latch on entry
                 self.state["airspeed"] = pitot_frozen_speed       # frozen reading
@@ -505,39 +496,31 @@ class UavSimulatorGUI:
                 self.state["pitch"]         = round(random.uniform(1.0, 3.0), 1)
                 self.state["roll"]          = round(random.uniform(-2.0, 2.0), 1)
                 self.state["throttle"]      = round(random.uniform(54, 62), 1)
-                self.state["servo_current"] = round(random.uniform(0.9, 1.4), 2)
-                self.state["batt_rem"]      = round(max(0.0, self.state["batt_rem"] - 0.04), 1)
-                self.state["fix_type"]      = 3
-                self.state["cam_status"]    = "ACTIVE"
-                self.state["signal_quality"] = random.randint(88, 96)
+                self.state["servoCurrent"] = round(random.uniform(0.9, 1.4), 2)
+                self.state["battRem"]      = round(max(0.0, self.state["battRem"] - 0.04), 1)
+                self.state["fixType"]      = 3
+                self.state["camStatus"]    = "ACTIVE"
+                self.state["signalQuality"] = random.randint(88, 96)
+                self.state["temperature"]   = round(random.uniform(36, 42), 1)
 
             elif self.failure_mode == "ENGINE":
-                # ── Engine / propulsion failure ───────────────────────────
-                # Real behaviour: autopilot pushes throttle to 100% trying to
-                # maintain altitude. Despite full throttle, airspeed and
-                # altitude both decrease — the engine cannot deliver thrust.
-                # pitch goes slightly nose-up (autopilot fighting the sink).
-                # servo_current rises because control surfaces work harder.
-                #
-                # Fix vs previous: ENGINE no longer conflicts with the
-                # alt_rel interpolation from the route block. We override
-                # target_alt_rel so both systems agree on the descent.
                 self.state["throttle"]      = 100.0
                 self.state["pitch"]         = round(random.uniform(4.0, 8.0), 1)  # nose-up fight
                 self.state["roll"]          = round(random.uniform(-3.0, 3.0), 1)
-                self.state["servo_current"] = round(random.uniform(1.8, 2.6), 2)  # elevated load
-                self.state["batt_rem"]      = round(max(0.0, self.state["batt_rem"] - 0.15), 1)  # drains faster at 100%
-                self.state["fix_type"]      = 3
-                self.state["cam_status"]    = "ACTIVE"
-                self.state["signal_quality"] = random.randint(85, 93)
+                self.state["servoCurrent"] = round(random.uniform(1.8, 2.6), 2)  # elevated load
+                self.state["battRem"]      = round(max(0.0, self.state["battRem"] - 0.15), 1)  # drains faster at 100%
+                self.state["fixType"]      = 3
+                self.state["camStatus"]    = "ACTIVE"
+                self.state["signalQuality"] = random.randint(85, 93)
+                self.state["temperature"]   = round(random.uniform(55, 68), 1)
 
                 if self.state["airspeed"] > 35.0:
                     self.state["airspeed"] = round(self.state["airspeed"] - random.uniform(0.8, 1.8), 1)
                 self.state["groundspeed"] = round(max(0.0, self.state["airspeed"] - random.uniform(1.0, 3.0)), 1)
 
                 # Override route altitude target to force a controlled descent
-                if self.target_alt_rel > 20.0:
-                    self.target_alt_rel = round(self.target_alt_rel - 4.0, 1)
+                if self.target_alt > 20.0:
+                    self.target_alt = round(self.target_alt - 4.0, 1)
 
             elif self.failure_mode == "SERVO":
                 # ── Servo actuator stall ──────────────────────────────────
@@ -561,7 +544,7 @@ class UavSimulatorGUI:
                 self.state["groundspeed"] = round(max(0.0, self.state["airspeed"] - random.uniform(1.0, 4.0)), 1)
 
                 # Servo current spike — jammed actuator at full torque
-                self.state["servo_current"] = round(random.uniform(4.2, 5.5), 2)
+                self.state["servoCurrent"] = round(random.uniform(4.2, 5.5), 2)
 
                 # Pitch becomes unstable as roll diverges
                 self.state["pitch"] = round(random.uniform(-10.0, 15.0), 1)
@@ -573,23 +556,23 @@ class UavSimulatorGUI:
                     round(random.uniform(1.5, 3.2), 3),    # Y torsional — key indicator
                     vib_base[2],
                 ]
-                self.state["batt_rem"]      = round(max(0.0, self.state["batt_rem"] - 0.08), 1)
-                self.state["fix_type"]      = 3
-                self.state["cam_status"]    = "ACTIVE"
-                self.state["signal_quality"] = random.randint(85, 95)
+                self.state["battRem"]      = round(max(0.0, self.state["battRem"] - 0.08), 1)
+                self.state["fixType"]      = 3
+                self.state["camStatus"]    = "ACTIVE"
+                self.state["signalQuality"] = random.randint(85, 95)
 
             elif self.failure_mode == "SIGNAL":
                 # ── REB / radio link degradation ─────────────────────────
                 # Real behaviour: an electronic warfare jammer degrades the
-                # RC link first (rssi drops), then the video link (signal_quality).
-                # GPS can also be affected → fix_type degrades.
+                # RC link first (rssi drops), then the video link (signalQuality).
+                # GPS can also be affected → fixType degrades.
                 # The aircraft continues flying on autopilot but the operator
                 # loses situational awareness and control authority.
                 self.state["rssi"]           = round(random.uniform(15, 55), 0)
-                self.state["signal_quality"] = random.randint(3, 22)
-                self.state["cam_status"]     = "DEGRADED"
+                self.state["signalQuality"] = random.randint(3, 22)
+                self.state["camStatus"]     = "DEGRADED"
                 # GPS degradation under broadband jamming
-                self.state["fix_type"]       = random.choice([0, 1, 2, 2, 3])  # mostly bad
+                self.state["fixType"]       = random.choice([0, 1, 2, 2, 3])  # mostly bad
 
                 # Flight continues but GPS uncertainty causes autopilot drift
                 self.state["airspeed"]      = round(random.uniform(68, 78), 1)
@@ -597,21 +580,21 @@ class UavSimulatorGUI:
                 self.state["pitch"]         = round(random.uniform(-2.0, 4.0), 1)
                 self.state["roll"]          = round(random.uniform(-5.0, 5.0), 1)
                 self.state["throttle"]      = round(random.uniform(52, 65), 1)
-                self.state["servo_current"] = round(random.uniform(1.0, 1.6), 2)
-                self.state["batt_rem"]      = round(max(0.0, self.state["batt_rem"] - 0.04), 1)
+                self.state["servoCurrent"] = round(random.uniform(1.0, 1.6), 2)
+                self.state["battRem"]      = round(max(0.0, self.state["battRem"] - 0.04), 1)
 
             elif self.failure_mode == "LATENCY":
                 # ── Network congestion / packet loss ─────────────────────
                 # Real behaviour: telemetry packets arrive late or out of order.
                 # The radio link RSSI itself may be fine, but the data pipeline
                 # (ground router, UDP buffer) is saturated.
-                # Visible effect: rssi stays reasonable but signal_quality drops
+                # Visible effect: rssi stays reasonable but signalQuality drops
                 # (video stream is the first to degrade under bandwidth pressure),
-                # and GPS fix_type jitters as packets are dropped.
+                # and GPS fixType jitters as packets are dropped.
                 self.state["rssi"]           = round(random.uniform(100, 150), 0)  # link ok
-                self.state["signal_quality"] = random.randint(20, 45)              # video suffers
-                self.state["fix_type"]       = random.choice([2, 3, 3, 3])         # occasional dropout
-                self.state["cam_status"]     = "DEGRADED"
+                self.state["signalQuality"] = random.randint(20, 45)              # video suffers
+                self.state["fixType"]       = random.choice([2, 3, 3, 3])         # occasional dropout
+                self.state["camStatus"]     = "DEGRADED"
 
                 # Flight params normal — this is a network problem, not hardware
                 self.state["airspeed"]      = round(random.uniform(73, 77), 1)
@@ -619,8 +602,8 @@ class UavSimulatorGUI:
                 self.state["pitch"]         = round(random.uniform(1.0, 2.5), 1)
                 self.state["roll"]          = round(random.uniform(-1.5, 1.5), 1)
                 self.state["throttle"]      = round(random.uniform(52, 58), 1)
-                self.state["servo_current"] = round(random.uniform(0.9, 1.4), 2)
-                self.state["batt_rem"]      = round(max(0.0, self.state["batt_rem"] - 0.04), 1)
+                self.state["servoCurrent"] = round(random.uniform(0.9, 1.4), 2)
+                self.state["battRem"]      = round(max(0.0, self.state["battRem"] - 0.04), 1)
 
             elif self.failure_mode == "BATTERY":
                 # ── Critical battery discharge ────────────────────────────
@@ -629,11 +612,11 @@ class UavSimulatorGUI:
                 # (trying to maintain airspeed), which drains the battery even
                 # faster. Below ~15% the aircraft may enter RTL automatically.
                 # At < 5% the motor can cut out mid-flight.
-                self.state["batt_rem"] = round(
-                    max(0.0, self.state["batt_rem"] - random.uniform(1.5, 3.5)), 1)
+                self.state["battRem"] = round(
+                    max(0.0, self.state["battRem"] - random.uniform(1.5, 3.5)), 1)
 
                 # Throttle rises as autopilot fights voltage sag
-                batt = self.state["batt_rem"]
+                batt = self.state["battRem"]
                 self.state["throttle"]    = round(min(100.0, 55.0 + (100.0 - batt) * 0.6), 1)
                 self.state["airspeed"]    = round(random.uniform(70, 76), 1)
                 self.state["groundspeed"] = round(self.state["airspeed"] - random.uniform(1.5, 4.0), 1)
@@ -643,10 +626,10 @@ class UavSimulatorGUI:
                 # Motor vibration increases as voltage sags (coil timing drift)
                 vib_batt_z = round(min(1.5, 0.28 + (100.0 - batt) * 0.012), 3)
                 self.state["vibration"]  = [vib_base[0], vib_base[1], vib_batt_z]
-                self.state["servo_current"] = round(random.uniform(1.2, 2.0), 2)
-                self.state["fix_type"]   = 3
-                self.state["cam_status"] = "ACTIVE"
-                self.state["signal_quality"] = random.randint(82, 94)
+                self.state["servoCurrent"] = round(random.uniform(1.2, 2.0), 2)
+                self.state["fixType"]   = 3
+                self.state["camStatus"] = "ACTIVE"
+                self.state["signalQuality"] = random.randint(82, 94)
 
             elif self.failure_mode == "TEMP":
                 # ── Electronics / ESC overheat ────────────────────────────
@@ -655,7 +638,7 @@ class UavSimulatorGUI:
                 # Key symptoms:
                 #   • Vibration Z accumulates — thermal expansion causes
                 #     prop hub micro-wobble (progressive, not instant)
-                #   • servo_current rises — thermal resistance in windings
+                #   • servoCurrent rises — thermal resistance in windings
                 #   • throttle becomes unstable — ESC thermal protection fires
                 #   • At extreme temps the ESC cuts power briefly → airspeed dips
                 #
@@ -667,7 +650,7 @@ class UavSimulatorGUI:
                     round(random.uniform(0.08, 0.18), 3),
                     overheat_vib_z,                           # the key rising indicator
                 ]
-                self.state["servo_current"] = round(min(3.5, 1.2 + overheat_vib_z * 0.4), 2)
+                self.state["servoCurrent"] = round(min(3.5, 1.2 + overheat_vib_z * 0.4), 2)
 
                 # ESC thermal cut causes brief throttle oscillation
                 self.state["throttle"] = round(random.uniform(45, 80), 1)
@@ -676,10 +659,10 @@ class UavSimulatorGUI:
                 self.state["groundspeed"] = round(max(0.0, self.state["airspeed"] - random.uniform(1.5, 4.0)), 1)
                 self.state["pitch"]       = round(random.uniform(0.5, 3.5), 1)
                 self.state["roll"]        = round(random.uniform(-2.5, 2.5), 1)
-                self.state["batt_rem"]    = round(max(0.0, self.state["batt_rem"] - 0.06), 1)
-                self.state["fix_type"]    = 3
-                self.state["cam_status"]  = "ACTIVE"
-                self.state["signal_quality"] = random.randint(85, 95)
+                self.state["battRem"]    = round(max(0.0, self.state["battRem"] - 0.06), 1)
+                self.state["fixType"]    = 3
+                self.state["camStatus"]  = "ACTIVE"
+                self.state["signalQuality"] = random.randint(85, 95)
 
             else:
                 # ── NORMAL steady-state ───────────────────────────────────
@@ -692,33 +675,25 @@ class UavSimulatorGUI:
                 self.state["pitch"]          = round(random.uniform(1.2, 2.5), 1)
                 self.state["roll"]           = round(random.uniform(-1.5, 1.5), 1)
                 self.state["throttle"]       = round(random.uniform(52, 58), 1)
-                self.state["servo_current"]  = round(random.uniform(0.9, 1.4), 2)
-                self.state["batt_rem"]       = round(max(0.0, self.state["batt_rem"] - 0.04), 1)
-                self.state["signal_quality"] = random.randint(88, 96)
-                self.state["cam_status"]     = "ACTIVE"
-                self.state["fix_type"]       = 3
+                self.state["servoCurrent"]  = round(random.uniform(0.9, 1.4), 2)
+                self.state["battRem"]       = round(max(0.0, self.state["battRem"] - 0.04), 1)
+                self.state["signalQuality"] = random.randint(88, 96)
+                self.state["camStatus"]     = "ACTIVE"
+                self.state["fixType"]       = 3
 
             # ── GPS: route-specific motion pattern ───────────────────
             self.tick += 0.2
 
             if self.current_route == "PERIMETER":
-                # Rectangular loop: sin/cos at the same frequency traces an
-                # ellipse around the anchor — approximates a box pattern.
-                # Scale 0.008 ≈ ~900 m radius at this latitude.
                 dyn_lat = self.target_lat + math.sin(self.tick * 0.6) * 0.008
                 dyn_lon = self.target_lon + math.cos(self.tick * 0.6) * 0.008
 
             elif self.current_route == "SWEEP":
-                # Lawnmower pattern: oscillate on lon axis while slowly
-                # advancing on lat then reversing (sawtooth via sin).
-                # Bounded — never drifts away from anchor.
                 sweep_progress = math.sin(self.tick * 0.15)   # slow N-S advance
                 dyn_lat = self.target_lat + sweep_progress * 0.006
                 dyn_lon = self.target_lon + math.sin(self.tick * 1.2) * 0.004
 
             elif self.current_route == "ORBIT":
-                # Tight clockwise circle around a fixed ground target.
-                # Scale 0.003 ≈ ~250 m radius — matches loiter_radius = 200 m.
                 dyn_lat = self.target_lat + math.sin(self.tick * 1.0) * 0.003
                 dyn_lon = self.target_lon + math.cos(self.tick * 1.0) * 0.003
 
@@ -727,12 +702,12 @@ class UavSimulatorGUI:
                 dyn_lat = self.target_lat
                 dyn_lon = self.target_lon
 
-            # Smoothly interpolate alt_rel and loiter_radius toward targets
-            alt_diff = self.target_alt_rel - self.state["alt_rel"]
+            # Smoothly interpolate altitude and loiter_radius toward targets
+            alt_diff = self.target_alt - self.state["altitude"]
             if abs(alt_diff) > 1.0:
-                self.state["alt_rel"] = round(self.state["alt_rel"] + alt_diff * 0.05, 1)
+                self.state["altitude"] = round(self.state["altitude"] + alt_diff * 0.05, 1)
             else:
-                self.state["alt_rel"] = self.target_alt_rel
+                self.state["altitude"] = self.target_alt
 
             lr_diff = self.target_loiter_radius - self.state["loiter_radius"]
             if abs(lr_diff) > 5:
@@ -741,7 +716,7 @@ class UavSimulatorGUI:
                 self.state["loiter_radius"] = self.target_loiter_radius
 
             step = 0.004
-            for axis, dyn in [("lat", dyn_lat), ("lon", dyn_lon)]:
+            for axis, dyn in [("latitude", dyn_lat), ("longitude", dyn_lon)]:
                 diff = dyn - self.state[axis]
                 if abs(diff) > step:
                     self.state[axis] = round(self.state[axis] + (step if diff > 0 else -step), 6)
@@ -750,8 +725,8 @@ class UavSimulatorGUI:
 
             # Update heading to match direction of travel
             self.state["heading"] = round((math.degrees(math.atan2(
-                dyn_lon - self.state["lon"],
-                dyn_lat - self.state["lat"]
+                dyn_lon - self.state["longitude"],
+                dyn_lat - self.state["latitude"]
             )) + 360) % 360, 1)
 
             # ── BUILD PACKET ─────────────────────────────────────────────
@@ -777,9 +752,9 @@ class UavSimulatorGUI:
         # Threshold rules per param
         thresholds = {
             "rssi":         [(80,  "danger"), (120, "warning")],   # lower = worse
-            "batt_rem":     [(15,  "danger"), (30,  "warning")],   # lower = worse
-            "servo_current":[(4.0, "danger"), (2.0, "warning")],   # higher = worse
-            "signal_quality":[(20, "danger"), (50,  "warning")],   # lower = worse
+            "battRem":     [(15,  "danger"), (30,  "warning")],   # lower = worse
+            "servoCurrent":[(4.0, "danger"), (2.0, "warning")],   # higher = worse
+            "signalQuality":[(20, "danger"), (50,  "warning")],   # lower = worse
         }
 
         for key, widget in self.telemetry_labels.items():
@@ -792,7 +767,7 @@ class UavSimulatorGUI:
             if key in thresholds:
                 threshold_val, _ = thresholds[key][0]
                 # For params where lower = worse
-                if key in ("rssi", "batt_rem", "signal_quality"):
+                if key in ("rssi", "battRem", "signalQuality"):
                     if isinstance(val, (int, float)):
                         if val < thresholds[key][0][0]:
                             color = c["accent_danger"]
@@ -806,8 +781,8 @@ class UavSimulatorGUI:
                         elif val > thresholds[key][1][0]:
                             color = c["accent_warning"]
 
-            # cam_status colour
-            if key == "cam_status":
+            # camStatus colour
+            if key == "camStatus":
                 if val == "DEGRADED":
                     color = c["accent_warning"]
                 elif val == "OFF":

@@ -13,9 +13,8 @@ export function StatusBar({ isConnected }: { isConnected: boolean }) {
   if (!lastUavData) return null;
 
   const isMasterCaution =
-    lastUavData.battery_level < 15 ||
+    lastUavData.battRem < 15 ||
     lastUavData.temperature > 75 ||
-    lastUavData.latency > 800 ||
     lastUavData.rssi < -85;
 
   return (

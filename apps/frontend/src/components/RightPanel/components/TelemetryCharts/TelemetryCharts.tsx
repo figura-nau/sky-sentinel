@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useContext } from "react";
 import { ChartsHistoryContext } from "@/providers";
 import { TelemetryMiniChart } from "@/components/TelemetryMiniChart";
-import type { UAVdata } from "@sky-sentinel/typescript/types";
+import type { UAVdata } from "@prisma/client";
 
 interface ChartConfig {
   field: keyof UAVdata;
@@ -14,14 +14,9 @@ interface ChartConfig {
 
 const CHART_CONFIGS: ChartConfig[] = [
   { field: "altitude", titleKey: "altitudeHistory", color: "#3b82f6" },
-  { field: "battery_level", titleKey: "batteryLevelHistory", color: "#10b981" },
+  { field: "battRem", titleKey: "batteryLevelHistory", color: "#10b981" },
   { field: "airspeed", titleKey: "airspeedHistory", color: "#06b6d4" },
-  { field: "groundSpeed", titleKey: "groundSpeedHistory", color: "#6366f1" },
-  {
-    field: "verticalSpeed",
-    titleKey: "verticalSpeedHistory",
-    color: "#f43f5e",
-  },
+  { field: "groundspeed", titleKey: "groundSpeedHistory", color: "#6366f1" },
   { field: "pitch", titleKey: "pitchHistory", color: "#f59e0b" },
   { field: "roll", titleKey: "rollHistory", color: "#8b5cf6" },
   {
@@ -32,7 +27,6 @@ const CHART_CONFIGS: ChartConfig[] = [
   },
   { field: "temperature", titleKey: "temperatureHistory", color: "#ef4444" },
   { field: "rssi", titleKey: "rssiHistory", color: "#14b8a6" },
-  { field: "latency", titleKey: "latencyHistory", color: "#f97316" },
   { field: "servoCurrent", titleKey: "servoCurrentHistory", color: "#a855f7" },
 ];
 

@@ -21,10 +21,10 @@ export interface FailureReport {
 
 // Telemetry schema (matches Python simulator + MAVLink-compatible JSON):
 //
-//   Navigation : lat, lon, alt_rel, fix_type
+//   Navigation : lat, lon, alt_rel, fixType
 //   Flight     : airspeed, groundspeed, heading, pitch, roll, throttle
-//   Diagnostics: batt_rem, servo_current, vibration [X,Y,Z], rssi (0-254)
-//   Recon      : cam_status, signal_quality, loiter_radius
+//   Diagnostics: battRem, servoCurrent, vibration [X,Y,Z], rssi (0-254)
+//   Recon      : camStatus, signalQuality, loiter_radius
 //
 // NOTE: rssi uses the MAVLink 0-254 scale, NOT dBm.
 //       Removed from previous version: vsi, gear_status, temperature, latency.
@@ -241,14 +241,14 @@ export class FailuresService {
 
   // ── 5. NAVIGATION / GPS ──────────────────────────────────────────────────
   /**
-   * Validates GPS data quality using fix_type and coordinate sanity.
+   * Validates GPS data quality using fixType and coordinate sanity.
    *
-   * fix_type (from GPS_RAW_INT in MAVLink):
+   * fixType (from GPS_RAW_INT in MAVLink):
    *   0 = no fix, 1 = dead-reckoning only, 2 = 2D fix, 3 = 3D fix (minimum usable),
    *   4 = DGPS, 5 = RTK float, 6 = RTK fixed.
    *   Values below 3 mean the position data should be discarded.
    *
-   * In REB (electronic warfare) environments GPS can degrade from fix_type 3
+   * In REB (electronic warfare) environments GPS can degrade from fixType 3
    * to 0 within seconds. The KIUS must react immediately and switch to
    * inertial/dead-reckoning navigation if available.
    *
@@ -269,7 +269,7 @@ export class FailuresService {
         type: FailureType.NETWORK,
         severity: Severity.CRITICAL,
         description:
-          `GPS fix degraded: fix_type = ${fixType} (minimum required: ${FAILURE_CONSTANTS.GPS_MIN_FIX}). ` +
+          `GPS fix degraded: fixType = ${fixType} (minimum required: ${FAILURE_CONSTANTS.GPS_MIN_FIX}). ` +
           `Coordinate data unreliable. Possible REB interference.`,
         uavDataId,
       });
@@ -315,9 +315,9 @@ export class FailuresService {
 
   // ── 6. SERVO / MECHANICAL HEALTH ─────────────────────────────────────────
   /**
-   * Monitors servo_current and vibration vector for mechanical failures.
+   * Monitors servoCurrent and vibration vector for mechanical failures.
    *
-   * servo_current (Amperes, from SYS_STATUS.currentBattery ÷ 100):
+   * servoCurrent (Amperes, from SYS_STATUS.currentBattery ÷ 100):
    *   Normal recon load ≈ 0.8–1.5 A (control surfaces + camera gimbal).
    *   A spike above 2 A indicates mechanical resistance on a control surface.
    *   Above 4 A the servo is likely jammed — imminent loss of control authority.
@@ -391,7 +391,7 @@ export class FailuresService {
   /**
    * Monitors battery remaining percentage.
    *
-   * batt_rem maps directly to SYS_STATUS.batteryRemaining (0–100 %).
+   * battRem maps directly to SYS_STATUS.batteryRemaining (0–100 %).
    * The RTL (Return-To-Launch) trigger should be configured in the autopilot
    * at ~25–30 % to guarantee enough energy to return from max range.
    *
@@ -422,7 +422,7 @@ export class FailuresService {
 
   // ── 8. RADIO LINK / REB DETECTION ────────────────────────────────────────
   /**
-   * Monitors RSSI and signal_quality for REB (electronic warfare) threats.
+   * Monitors RSSI and signalQuality for REB (electronic warfare) threats.
    *
    * rssi uses the MAVLink 0–254 scale (RC_CHANNELS.rssi or RADIO_STATUS.rssi).
    * This is NOT dBm — thresholds differ from the previous version.
@@ -430,7 +430,7 @@ export class FailuresService {
    *   ~100 = degraded but usable
    *   < 60  = likely REB interference or out-of-range
    *
-   * signal_quality (0–100 %) is a recon-specific extension representing
+   * signalQuality (0–100 %) is a recon-specific extension representing
    * the video-link quality to the payload camera. It degrades independently
    * of the RC link and can be the first indicator of narrowband jamming.
    *
@@ -470,7 +470,7 @@ export class FailuresService {
         type: FailureType.NETWORK,
         severity: Severity.CRITICAL,
         description:
-          `Video link CRITICAL: signal_quality ${signalQuality}%. ` +
+          `Video link CRITICAL: signalQuality ${signalQuality}%. ` +
           `Reconnaissance payload data feed lost.`,
         uavDataId,
       });
@@ -479,7 +479,7 @@ export class FailuresService {
         type: FailureType.NETWORK,
         severity: Severity.WARNING,
         description:
-          `Video link WARNING: signal_quality ${signalQuality}%. ` +
+          `Video link WARNING: signalQuality ${signalQuality}%. ` +
           `Payload data quality degraded.`,
         uavDataId,
       });
@@ -515,7 +515,7 @@ export class FailuresService {
       lat: number;
       lon: number;
       alt_rel: number;
-      fix_type: number;
+      fixType: number;
       // Flight
       airspeed: number;
       groundspeed: number;
@@ -523,12 +523,12 @@ export class FailuresService {
       roll: number;
       throttle: number;
       // Diagnostics
-      batt_rem: number;
-      servo_current: number;
+      battRem: number;
+      servoCurrent: number;
       vibration: number[];
       rssi: number;
       // Recon extensions
-      signal_quality: number;
+      signalQuality: number;
     },
     meta: {
       uavDataId: string;
@@ -566,15 +566,15 @@ export class FailuresService {
         data.lat,
         data.lon,
         data.alt_rel,
-        data.fix_type,
+        data.fixType,
         data.airspeed,
         meta.uavDataId,
       ),
-      this.checkMechanical(data.servo_current, data.vibration, meta.uavDataId),
-      this.checkPower(data.batt_rem, meta.uavDataId),
+      this.checkMechanical(data.servoCurrent, data.vibration, meta.uavDataId),
+      this.checkPower(data.battRem, meta.uavDataId),
       this.checkRadioLink(
         data.rssi,
-        data.signal_quality,
+        data.signalQuality,
         meta.lastSeenMs,
         meta.uavDataId,
       ),

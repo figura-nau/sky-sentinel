@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import { useEffect, useRef, useState } from "react";
-import type { UAVdata } from "@sky-sentinel/typescript/types";
 import type { FlightPathPoint } from "@/providers/UavDataProvider";
+import type { UAVdata } from "@prisma/client";
 
 export const useSocketConnection = () => {
   const URL =

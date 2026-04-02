@@ -8,7 +8,7 @@ export default function BatteryLevelHistory() {
   const chartsHistory = useContext(ChartsHistoryContext);
   const data = chartsHistory.map((entry) => ({
     x: new Date(entry.timestamp).getTime(),
-    y: entry.battery_level,
+    y: entry.battRem,
   }));
   return (
     <TelemetryMiniChart
