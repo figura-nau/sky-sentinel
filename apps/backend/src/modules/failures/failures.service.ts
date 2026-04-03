@@ -4,6 +4,7 @@ import { CreateFailureDto } from './dto/create-failure.dto';
 import { UpdateFailureDto } from './dto/update-failure.dto';
 import { PrismaService } from 'src/modules/database/prisma.service';
 import * as FAILURE_CONSTANTS from '@sky-sentinel/shared/failure-constants.ts';
+import { getRoundedValue } from '@sky-sentinel/shared/utils.ts';
 
 export interface FailureReport {
   incidentId: string;
@@ -82,8 +83,8 @@ export class FailuresService {
         type: FailureType.HARDWARE,
         severity: Severity.WARNING,
         description:
-          `Analytical redundancy violation: |groundspeed ${groundspeed.toFixed(1)} ` +
-          `− airspeed ${airspeed.toFixed(1)}| = ${delta.toFixed(1)} m/s ` +
+          `Analytical redundancy violation: |groundspeed ${getRoundedValue(groundspeed)} ` +
+          `− airspeed ${getRoundedValue(airspeed)}| = ${getRoundedValue(delta)} m/s ` +
           `(threshold ${FAILURE_CONSTANTS.PITOT_DIVERGENCE_MS} m/s). ` +
           `Possible Pitot clog or GPS degradation.`,
         uavDataId,
@@ -109,7 +110,7 @@ export class FailuresService {
         type: FailureType.HARDWARE,
         severity: Severity.CRITICAL,
         description:
-          `STALL CRITICAL: airspeed ${airspeed.toFixed(1)} m/s is below ` +
+          `STALL CRITICAL: airspeed ${getRoundedValue(airspeed)} m/s is below ` +
           `minimum safe speed ${FAILURE_CONSTANTS.STALL_CRITICAL_MS} m/s. Immediate recovery required.`,
         uavDataId,
       });
@@ -118,7 +119,7 @@ export class FailuresService {
         type: FailureType.HARDWARE,
         severity: Severity.WARNING,
         description:
-          `STALL WARNING: airspeed ${airspeed.toFixed(1)} m/s approaching ` +
+          `STALL WARNING: airspeed ${getRoundedValue(airspeed)} m/s approaching ` +
           `stall margin (${FAILURE_CONSTANTS.STALL_WARNING_MS} m/s). Increase throttle.`,
         uavDataId,
       });
@@ -157,7 +158,7 @@ export class FailuresService {
         severity: Severity.CRITICAL,
         description:
           `Propulsion failure: throttle ${throttle}% (saturated) but altitude ` +
-          `dropped ${altitudeDrop.toFixed(1)} m since last tick. ` +
+          `dropped ${getRoundedValue(altitudeDrop)} m since last tick. ` +
           `Engine may have lost thrust.`,
         uavDataId,
       });
@@ -168,7 +169,7 @@ export class FailuresService {
         severity: Severity.WARNING,
         description:
           `Propulsion degradation: throttle ${throttle}%, altitude loss ` +
-          `${altitudeDrop.toFixed(1)} m. Monitor engine output.`,
+          `${getRoundedValue(altitudeDrop)} m. Monitor engine output.`,
         uavDataId,
       });
     }
@@ -204,8 +205,8 @@ export class FailuresService {
         type: FailureType.HARDWARE,
         severity: Severity.CRITICAL,
         description:
-          `IMU failure: rotation rates (pitch ${pitchRate.toFixed(0)}°/s, ` +
-          `roll ${rollRate.toFixed(0)}°/s) exceed physical airframe limit ` +
+          `IMU failure: rotation rates (pitch ${getRoundedValue(pitchRate)}°/s, ` +
+          `roll ${getRoundedValue(rollRate)}°/s) exceed physical airframe limit ` +
           `(${FAILURE_CONSTANTS.MAX_PHYSICAL_RATE}°/s). Sensor data cannot be trusted.`,
         uavDataId,
       });
@@ -233,8 +234,8 @@ export class FailuresService {
         type: FailureType.HARDWARE,
         severity: Severity.WARNING,
         description:
-          `Unusual attitude WARNING: pitch ${pitch.toFixed(1)}°, ` +
-          `roll ${roll.toFixed(1)}°. Exceeds normal recon flight envelope.`,
+          `Unusual attitude WARNING: pitch ${getRoundedValue(pitch)}°, ` +
+          `roll ${getRoundedValue(roll)}°. Exceeds normal recon flight envelope.`,
         uavDataId,
       });
     }
@@ -295,8 +296,8 @@ export class FailuresService {
         type: FailureType.HARDWARE,
         severity: Severity.CRITICAL,
         description:
-          `Terrain proximity: alt_rel ${altRel.toFixed(1)} m at ` +
-          `${airspeed.toFixed(1)} m/s. Collision risk.`,
+          `Terrain proximity: alt_rel ${getRoundedValue(altRel)} m at ` +
+          `${getRoundedValue(airspeed)} m/s. Collision risk.`,
         uavDataId,
       });
     }
@@ -307,7 +308,7 @@ export class FailuresService {
         type: FailureType.OTHER,
         severity: Severity.WARNING,
         description:
-          `Altitude limit exceeded: ${altRel.toFixed(0)} m AGL ` +
+          `Altitude limit exceeded: ${getRoundedValue(altRel)} m AGL ` +
           `(legal ceiling ${FAILURE_CONSTANTS.LEGAL_ALT_LIMIT_M} m).`,
         uavDataId,
       });
@@ -344,7 +345,7 @@ export class FailuresService {
         type: FailureType.HARDWARE,
         severity: Severity.CRITICAL,
         description:
-          `Servo stall CRITICAL: current ${servoCurrent.toFixed(2)} A ` +
+          `Servo stall CRITICAL: current ${getRoundedValue(servoCurrent)} A ` +
           `(limit ${FAILURE_CONSTANTS.SERVO_CRIT_A} A). Possible control surface jam.`,
         uavDataId,
       });
@@ -353,7 +354,7 @@ export class FailuresService {
         type: FailureType.HARDWARE,
         severity: Severity.WARNING,
         description:
-          `Servo load WARNING: current ${servoCurrent.toFixed(2)} A ` +
+          `Servo load WARNING: current ${getRoundedValue(servoCurrent)} A ` +
           `(threshold ${FAILURE_CONSTANTS.SERVO_WARN_A} A). Monitor for mechanical resistance.`,
         uavDataId,
       });
@@ -370,7 +371,7 @@ export class FailuresService {
         severity: Severity.CRITICAL,
         description:
           `Vibration CRITICAL on axis ${axisLabels[worstAxis]}: ` +
-          `${worstVal.toFixed(3)} m/s² (limit ${FAILURE_CONSTANTS.VIB_CRIT_MS2} m/s²). ` +
+          `${getRoundedValue(worstVal)} m/s² (limit ${FAILURE_CONSTANTS.VIB_CRIT_MS2} m/s²). ` +
           `Possible propeller imbalance or bearing failure. ` +
           `Full vector: X=${vibration[0]} Y=${vibration[1]} Z=${vibration[2]}.`,
         uavDataId,
@@ -381,7 +382,7 @@ export class FailuresService {
         severity: Severity.WARNING,
         description:
           `Vibration WARNING on axis ${axisLabels[worstAxis]}: ` +
-          `${worstVal.toFixed(3)} m/s² (threshold ${FAILURE_CONSTANTS.VIB_WARN_MS2} m/s²). ` +
+          `${getRoundedValue(worstVal)} m/s² (threshold ${FAILURE_CONSTANTS.VIB_WARN_MS2} m/s²). ` +
           `Monitor mechanical components.`,
         uavDataId,
       });
@@ -405,7 +406,7 @@ export class FailuresService {
         type: FailureType.HARDWARE,
         severity: Severity.CRITICAL,
         description:
-          `Battery CRITICAL: ${battRem.toFixed(0)}% remaining. ` +
+          `Battery CRITICAL: ${getRoundedValue(battRem)}% remaining. ` +
           `RTL should be triggered immediately.`,
         uavDataId,
       });
@@ -414,7 +415,7 @@ export class FailuresService {
         type: FailureType.HARDWARE,
         severity: Severity.WARNING,
         description:
-          `Battery WARNING: ${battRem.toFixed(0)}% remaining. ` +
+          `Battery WARNING: ${getRoundedValue(battRem)}% remaining. ` +
           `Consider initiating return to base.`,
         uavDataId,
       });
@@ -493,7 +494,7 @@ export class FailuresService {
         type: FailureType.NETWORK,
         severity: Severity.CRITICAL,
         description:
-          `Telemetry timeout: no packet received for ${silenceS.toFixed(1)} s ` +
+          `Telemetry timeout: no packet received for ${getRoundedValue(silenceS)} s ` +
           `(limit ${FAILURE_CONSTANTS.TELEMETRY_TIMEOUT_S} s). Aircraft link considered lost.`,
         uavDataId,
       });

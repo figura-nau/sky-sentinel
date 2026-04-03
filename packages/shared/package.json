@@ -5,6 +5,10 @@
     "./failure-constants.ts": {
       "default": "./failure-constants.ts",
       "types": "./failure-constants.ts"
+    },
+    "./utils.ts": {
+      "default": "./utils.ts",
+      "types": "./utils.ts"
     }
   }
 }

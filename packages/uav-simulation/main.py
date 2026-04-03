@@ -115,7 +115,7 @@ METRIC_KEYS = [
     "altitude", "airspeed", "groundspeed",
     "heading", "latitude", "longitude",
     "battRem", "servoCurrent", "rssi",
-    "temperature", "signalQuality", "loiter_radius"
+    "temperature", "signalQuality", "loiterRadius"
 ]
 
 
@@ -159,14 +159,14 @@ class UavSimulatorGUI:
             # Recon-specific extensions
             "camStatus":     "ACTIVE",
             "signalQuality": 92,            # percent video-link quality
-            "loiter_radius":  500,           # metres patrol radius
+            "loiterRadius":  500,           # metres patrol radius
             "temperature":    38.0,          # degrees Celsius
         }
 
         self.target_lat           = self.state["latitude"]
         self.target_lon           = self.state["longitude"]
         self.target_alt           = self.state["altitude"]
-        self.target_loiter_radius = self.state["loiter_radius"]
+        self.target_loiterRadius = self.state["loiterRadius"]
         self.tick = 0.0
         self.current_route = "RTB"
 
@@ -408,37 +408,37 @@ class UavSimulatorGUI:
         self.tick = 0.0  # reset oscillation phase on every route change
 
         # Each route has a fixed anchor point and mission-specific parameters.
-        # loiter_radius mirrors the state field sent in the telemetry packet.
+        # loiterRadius mirrors the state field sent in the telemetry packet.
         route_cfg = {
             # PERIMETER — rectangular surveillance loop around a POI.
             # Large radius, higher altitude for wide sensor coverage.
             "PERIMETER": {
                 "latitude": 50.4501, "longitude": 30.5234,
-                "altitude": 380.0, "loiter_radius": 800,
+                "altitude": 380.0, "loiterRadius": 800,
             },
             # SWEEP — back-and-forth transect lines (lawnmower pattern).
             # Narrow oscillation width; simulates systematic area coverage.
             "SWEEP": {
                 "latitude": 50.4200, "longitude": 30.5500,
-                "altitude": 420.0, "loiter_radius": 300,
+                "altitude": 420.0, "loiterRadius": 300,
             },
             # ORBIT — tight circle around a fixed ground target.
             # Small radius, lower altitude for close sensor look-angle.
             "ORBIT": {
                 "latitude": 50.4650, "longitude": 30.4900,
-                "altitude": 250.0, "loiter_radius": 200,
+                "altitude": 250.0, "loiterRadius": 200,
             },
             # RTB — Return To Base, straight flight to home, descending.
             "RTB": {
                 "latitude": 50.4100, "longitude": 30.5000,
-                "altitude": 150.0, "loiter_radius": 0,
+                "altitude": 150.0, "loiterRadius": 0,
             },
         }
         cfg = route_cfg.get(route, {})
         self.target_lat           = cfg.get("latitude",           self.state["latitude"])
         self.target_lon           = cfg.get("longitude",           self.state["longitude"])
         self.target_alt           = cfg.get("altitude",       self.state["altitude"])
-        self.target_loiter_radius = cfg.get("loiter_radius", self.state["loiter_radius"])
+        self.target_loiterRadius = cfg.get("loiterRadius", self.state["loiterRadius"])
 
     # ────────────────────────────────────────────────────────────────────────
     def log(self, msg, color=None):
@@ -457,6 +457,7 @@ class UavSimulatorGUI:
             else:
                 parts.append(f"{k}:{v}")
         s = "|".join(parts)
+        print(f"PYTHON DEBUG: Checksum string: {s}", flush=True)  # Debug log for checksum string
         c = 0
         for ch in s:
             c ^= ord(ch)
@@ -702,18 +703,18 @@ class UavSimulatorGUI:
                 dyn_lat = self.target_lat
                 dyn_lon = self.target_lon
 
-            # Smoothly interpolate altitude and loiter_radius toward targets
+            # Smoothly interpolate altitude and loiterRadius toward targets
             alt_diff = self.target_alt - self.state["altitude"]
             if abs(alt_diff) > 1.0:
                 self.state["altitude"] = round(self.state["altitude"] + alt_diff * 0.05, 1)
             else:
                 self.state["altitude"] = self.target_alt
 
-            lr_diff = self.target_loiter_radius - self.state["loiter_radius"]
+            lr_diff = self.target_loiterRadius - self.state["loiterRadius"]
             if abs(lr_diff) > 5:
-                self.state["loiter_radius"] = int(self.state["loiter_radius"] + lr_diff * 0.1)
+                self.state["loiterRadius"] = int(self.state["loiterRadius"] + lr_diff * 0.1)
             else:
-                self.state["loiter_radius"] = self.target_loiter_radius
+                self.state["loiterRadius"] = self.target_loiterRadius
 
             step = 0.004
             for axis, dyn in [("latitude", dyn_lat), ("longitude", dyn_lon)]:

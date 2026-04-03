@@ -47,15 +47,14 @@ export class TelemetryParserGateway
     try {
       const isValid = this.validationService.validate(packet);
       if (!isValid) {
-        console.log(`UAV/Client packet isn't valid: ${packet.data.id}`);
+        console.log(
+          `UAV/Client packet isn't valid: ${JSON.stringify(packet.data)}`,
+        );
         return;
       }
       const { data } = packet;
       const savedPacket: UAVdata = await this.prismaService.uAVdata.create({
-        data: {
-          ...data,
-          id: undefined,
-        },
+        data,
       });
       await Promise.all([
         this.failuresService.runAllChecks(

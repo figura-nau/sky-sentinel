@@ -1,4 +1,5 @@
 import * as FAILURE_CONSTANTS from "@sky-sentinel/shared/failure-constants.ts";
+import { getRoundedValue } from "@sky-sentinel/shared/utils.ts";
 import { MoreHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -21,7 +22,7 @@ export function RedundancyMonitor({
   groundSpeed,
 }: RedundancyMonitorProps) {
   const { t } = useTranslation();
-  const delta = Math.abs(airspeed - groundSpeed).toFixed(3);
+  const delta = Math.abs(airspeed - groundSpeed);
 
   const isOk = Number(delta) <= FAILURE_CONSTANTS.PITOT_DIVERGENCE_MS;
 
@@ -81,7 +82,9 @@ export function RedundancyMonitor({
               <span className="text-[10px]  text-muted-foreground">
                 Δ =
                 {" "}
-                {Number(delta).toFixed(2)}
+                {getRoundedValue(Number(delta))}
+                {" "}
+                m/s
               </span>
               <span
                 className={cn(

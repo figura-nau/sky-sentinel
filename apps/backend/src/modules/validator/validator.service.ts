@@ -19,7 +19,7 @@ export class ValidatorService {
     }
 
     if (Array.isArray(val)) {
-      return `[${val.map((v) => this.serializeForPython(v)).join(', ')}]`;
+      return `${val.map((v) => this.serializeForPython(v)).join(',')}`;
     }
     if (val instanceof Object && !Array.isArray(val)) {
       const entries = Object.entries(val as Record<string, unknown>)
@@ -38,13 +38,13 @@ export class ValidatorService {
       .map((key) => `${key}:${this.serializeForPython(data[key])}`)
       .join('|');
 
-    // console.log(`JS PAYLOAD: ${payloadString}`);
+    console.log(`JS PAYLOAD: ${payloadString}`);
 
     let calculatedChecksum = 0;
     for (let i = 0; i < payloadString.length; i++) {
       calculatedChecksum ^= payloadString.charCodeAt(i);
     }
-
+    console.log(`JS DEBUG: Checksum ${calculatedChecksum}`);
     return calculatedChecksum.toString(16).toUpperCase().padStart(2, '0');
   }
 

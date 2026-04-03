@@ -1,4 +1,5 @@
 import * as FAILURE_CONSTANTS from "@sky-sentinel/shared/failure-constants.ts";
+import { getRoundedValue } from "@sky-sentinel/shared/utils.ts";
 import { Battery, Thermometer, MoreHorizontal, Wifi } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -68,7 +69,7 @@ export function HardwareHealth({ battery, temp, rssi }: HardwareHealthProps) {
         >
           <Battery className="h-6 w-6" />
           <span className="text-lg font-bold">
-            {battery.toFixed(2)}
+            {getRoundedValue(battery)}
             %
           </span>
         </div>
@@ -102,7 +103,7 @@ export function HardwareHealth({ battery, temp, rssi }: HardwareHealthProps) {
               RSSI
             </span>
             <span className="text-lg font-bold">
-              {rssi.toFixed(2)}
+              {getRoundedValue(rssi)}
               {" "}
               dBm
             </span>
