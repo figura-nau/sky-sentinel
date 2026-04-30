@@ -1,4 +1,4 @@
-import type { UAVdata } from "@prisma/client";
+import type { UAVdata } from "@sky-sentinel/database";
 import type { Socket } from "socket.io-client";
 import type { FlightPathPoint } from "@/providers/UavDataProviders/FlightHistoryContext";
 import { useEffect, useRef, useState } from "react";

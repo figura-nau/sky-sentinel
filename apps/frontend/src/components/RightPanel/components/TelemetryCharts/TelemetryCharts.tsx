@@ -1,4 +1,4 @@
-import type { UAVdata } from "@prisma/client";
+import type { UAVdata } from "@sky-sentinel/database";
 import { use } from "react";
 import { useTranslation } from "react-i18next";
 import { TelemetryMiniChart } from "@/components/TelemetryMiniChart";

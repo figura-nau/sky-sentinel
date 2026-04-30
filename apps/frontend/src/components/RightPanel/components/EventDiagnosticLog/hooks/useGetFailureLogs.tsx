@@ -1,4 +1,4 @@
-import type { FailureLog } from "@prisma/client";
+import type { FailureLog } from "@sky-sentinel/database";
 import { useEffect, useState } from "react";
 
 export function useGetFailureLogs() {

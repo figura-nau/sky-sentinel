@@ -1,4 +1,4 @@
-import type { UAVdata } from "@prisma/client";
+import type { UAVdata } from "@sky-sentinel/database";
 import { LatestTelemetryContext } from "./latest-telemetry.context";
 
 export function LatestTelemetryProvider({

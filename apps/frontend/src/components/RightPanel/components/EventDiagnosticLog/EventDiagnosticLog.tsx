@@ -1,5 +1,5 @@
-import type { FailureLog } from "@prisma/client";
-import { Severity } from "@prisma/client";
+import type { FailureLog } from "@sky-sentinel/database";
+import { Severity } from "@sky-sentinel/database";
 import { FileText, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";

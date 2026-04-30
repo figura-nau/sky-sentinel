@@ -1,4 +1,4 @@
-import type { UAVdata } from "@prisma/client";
+import type { UAVdata } from "@sky-sentinel/database";
 import * as FAILURE_CONSTANTS from "@sky-sentinel/shared/failure-constants.ts";
 import { ArrowDown, ArrowLeft, ArrowUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
