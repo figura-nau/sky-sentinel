@@ -5,8 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
 export function useSocketConnection() {
-  const URL
-    = process.env.NODE_ENV === "production" ? undefined : "http://localhost:3003";
+  const URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3003";
 
   const [isConnected, setIsConnected] = useState(false);
   const [latestTelemetry, setLatestTelemetry] = useState<UAVdata | null>(null);
