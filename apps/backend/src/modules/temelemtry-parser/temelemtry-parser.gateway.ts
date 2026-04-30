@@ -33,8 +33,31 @@ export class TelemetryParserGateway
 
   @WebSocketServer() server: Server;
 
-  handleConnection(client: Socket) {
+  // Метод виконується при підключенні фронтенду
+  async handleConnection(client: Socket) {
     console.log(`UAV/Client Connected: ${client.id}`);
+
+    try {
+      // 1. Завантажуємо останні 100 записів із бази даних
+      const historicalData = await this.prismaService.uAVdata.findMany({
+        take: 100,
+        orderBy: {
+          timestamp: 'desc', // Беремо найсвіжіші
+        },
+      });
+
+      // 2. Перевертаємо масив, щоб дані йшли від старіших до новіших (хронологічно для графіків)
+      const chronologicalData = historicalData.reverse();
+
+      // 3. Відправляємо кожен запис підключеному клієнту
+      for (const record of chronologicalData) {
+        client.emit('receive_ui_data', record);
+      }
+
+      console.log(`Sent ${historicalData.length} historical records to client ${client.id}`);
+    } catch (err) {
+      console.error('Error fetching historical data for socket:', err);
+    }
   }
 
   handleDisconnect(client: Socket) {
@@ -102,7 +125,7 @@ export class TelemetryParserGateway
 
       this.prevPacket = savedPacket;
       
-      // Відправка даних на фронтенд
+      // Трансляція нових даних усім підключеним клієнтам (якщо з'являться нові)
       this.server.emit('receive_ui_data', data);
       
     } catch (err: unknown) {
