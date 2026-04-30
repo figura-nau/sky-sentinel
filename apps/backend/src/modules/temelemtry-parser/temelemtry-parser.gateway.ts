@@ -13,22 +13,24 @@ import { ValidatorService } from '../validator/validator.service';
 import { PrismaService } from 'src/modules/database/prisma.service';
 import { UAVdata } from '@prisma/client';
 
-@WebSocketGateway(3003, {
+@WebSocketGateway({
   cors: {
-    origin: ['*'],
+    origin: '*',
   },
 })
 export class TelemetryParserGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
   private prevPacket: UAVdata | undefined = undefined;
+
   constructor(
     private readonly validationService: ValidatorService,
     private readonly failuresService: FailuresService,
     private readonly prismaService: PrismaService,
   ) {
-    console.log('TelemetryParserGateway initialized on port 3003');
+    console.log('TelemetryParserGateway initialized and attached to main server');
   }
+
   @WebSocketServer() server: Server;
 
   handleConnection(client: Socket) {
@@ -41,7 +43,6 @@ export class TelemetryParserGateway
 
   @SubscribeMessage('telemetry')
   async handleUAVdata(
-    // @ConnectedSocket() client: Socket,
     @MessageBody() packet: UAVdataPacket,
   ) {
     try {
@@ -52,10 +53,13 @@ export class TelemetryParserGateway
         );
         return;
       }
+
       const { data } = packet;
+      
       const savedPacket: UAVdata = await this.prismaService.uAVdata.create({
         data,
       });
+
       await Promise.all([
         this.failuresService.runAllChecks(
           {
@@ -77,13 +81,13 @@ export class TelemetryParserGateway
           {
             uavDataId: savedPacket.id,
             altRelPrev: this.prevPacket
-              ? this.prevPacket?.altitude
+              ? this.prevPacket.altitude
               : savedPacket.altitude,
             pitchPrev: this.prevPacket
-              ? this.prevPacket?.pitch
+              ? this.prevPacket.pitch
               : savedPacket.pitch,
             rollPrev: this.prevPacket
-              ? this.prevPacket?.roll
+              ? this.prevPacket.roll
               : savedPacket.roll,
             lastSeenMs: this.prevPacket
               ? this.prevPacket.timestamp.getMilliseconds()
@@ -95,11 +99,14 @@ export class TelemetryParserGateway
           },
         ),
       ]);
+
       this.prevPacket = savedPacket;
-      // console.log('Send data to the frontend!', data);
+      
+      // Відправка даних на фронтенд
       this.server.emit('receive_ui_data', data);
+      
     } catch (err: unknown) {
-      console.error('error', err);
+      console.error('Socket telemetry handling error:', err);
     }
   }
 }
