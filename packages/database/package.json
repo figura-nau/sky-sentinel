@@ -5,6 +5,7 @@
   "private": true,
   "description": "Database configuration for the SkySentinel project",
   "exports": {
+    ".": "./index.ts",
     "./config": "./prisma.config.ts",
     "./index": "./index.ts"
   }
