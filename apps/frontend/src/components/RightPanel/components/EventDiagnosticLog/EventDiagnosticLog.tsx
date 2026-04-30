@@ -1,5 +1,4 @@
 import type { FailureLog } from "@sky-sentinel/database";
-import { Severity } from "@sky-sentinel/database";
 import { FileText, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -22,6 +21,7 @@ export function EventDiagnosticLog() {
     null,
   );
   const [open, setIsOpen] = useState(false);
+  
   return (
     <>
       <Card className="h-full max-h-80 w-full">
@@ -48,16 +48,15 @@ export function EventDiagnosticLog() {
                   <div
                     className={cn(
                       "h-5 w-5 shrink-0 rounded-full flex items-center justify-center",
-                      entry.severity === Severity.CRITICAL
-                      && "bg-destructive shadow-[0_0_10px_rgba(239,68,68,0.5)]",
-                      entry.severity === Severity.WARNING && "bg-yellow-500",
-                      entry.severity === Severity.INFO && "bg-green-500",
+                      entry.severity === "CRITICAL" && "bg-destructive shadow-[0_0_10px_rgba(239,68,68,0.5)]",
+                      entry.severity === "WARNING" && "bg-yellow-500",
+                      entry.severity === "INFO" && "bg-green-500",
                     )}
                   />
 
                   {/* Text Content */}
                   <div className="flex flex-col flex-1 gap-0.5">
-                    <div className="flex items-center gap-2 text-[11px]  text-muted-foreground">
+                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                       <span>
                         {new Date(entry.timestamp).toLocaleString(
                           i18n.language === "ua" ? "uk-UA" : "en-US",
@@ -71,11 +70,9 @@ export function EventDiagnosticLog() {
                     <span
                       className={cn(
                         "text-[10px] font-black uppercase tracking-wider",
-                        entry.severity === Severity.CRITICAL
-                        && "text-destructive",
-                        entry.severity === Severity.WARNING
-                        && "text-yellow-500",
-                        entry.severity === Severity.INFO && "text-green-500",
+                        entry.severity === "CRITICAL" && "text-destructive",
+                        entry.severity === "WARNING" && "text-yellow-500",
+                        entry.severity === "INFO" && "text-green-500",
                       )}
                     >
                       {entry.isResolved
