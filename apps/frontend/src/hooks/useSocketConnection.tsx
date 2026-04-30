@@ -16,7 +16,7 @@ export function useSocketConnection() {
 
   useEffect(() => {
     const socket = io(URL, {
-      transports: ["websocket"],
+    transports: ["polling", "websocket"],
     });
     socketRef.current = socket;
     socket.on("connect", onConnect);
